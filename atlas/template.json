@@ -1,0 +1,25 @@
+{
+    "rk_settings" :
+    {
+       "seed_ratio" : 1,
+       "point_save_ratio" : 1,
+       "rk_dt" : 0.020,
+       "rk_max_iter" : 4000,
+       "rk_min_iter" : 100
+    },
+
+    "laplace_settings" :
+    {
+        "dim" : 2,
+        "eps" : 5e-5,
+        "i_max" : 10000
+    },
+
+    "sections" :
+    [
+        {
+        "input_prefix" : "%%input_prefix%%",
+        "output_prefix" : "%%output_prefix%%"
+        }
+    ]
+}

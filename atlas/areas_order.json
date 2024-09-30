@@ -1,0 +1,21 @@
+[
+["Dorsolateral prefrontal", "Ventrolateral prefrontal", "Orbitofrontal", "Medial prefrontal", "Motor and premotor", "Insula and rostral lateral sulcus", "Somatosensory cortex", "Auditory", "Lateral and inferior temporal", "Ventral temporal", "Posterior cingulate, medial and retrosplenial", "Posterior parietal", "Visual cortex"],
+["A10", "A9", "A46V", "A46D","A8aD","A8b","A8aV", "A47L", "A47M", "A45", "A47O", "ProM", "A11", "A13b", "A13a", "A13L", "A13M", "OPAl", "OPro", "Gu", "A32", "A32V", "A14R", "A14C", "A25", "A24a", "A24b", "A24c", "A24d", "A6DR", "A6Vb", "A6Va", "A8C", "A6M", "A6DC", "A4c", "A4ab", "PaIM", "AI", "PaIL", "DI", "GI", "IPro", "TPro", "S2PR", "A3a", "S2PV", "A3b", "S2I", "S2E", "A1-2","AuRTL", "AuRT", "AuRPB", "AuRTM", "AuR", "AuRM", "AuAL", "AuA1", "AuCM", "AuCPB", "AuML", "AuCL", "TPPro", "STR", "TE1", "TPO", "ReI", "TE2", "PGa-IPa", "TPt", "TE3", "TEO", "Pir", "APir", "Ent", "A36", "A35", "TF", "TL", "TH", "TLO", "TFO", "A23c", "A23a", "A29d", "A30", "A23b", "A29a-c", "A23V", "ProSt", "PF", "PE", "PFG", "A31", "AIP", "PG", "PEC", "VIP", "LIP", "PGM", "V6A", "OPt", "MIP", "MST", "FST", "V5", "V4T", "A19M", "V3A", "V4", "V6", "A19DI", "V3", "V2", "V1"],
+
+  {
+  "Dorsolateral prefrontal": ["A10", "A9", "A46V", "A46D","A8aD","A8b","A8aV"],
+  "Ventrolateral prefrontal": ["A47L", "A47M", "A45", "A47O", "ProM"],
+  "Orbitofrontal": ["A11", "A13b", "A13a", "A13L", "A13M", "OPAl", "OPro", "Gu"],
+  "Medial prefrontal": ["A32", "A32V", "A14R", "A14C", "A25", "A24a", "A24b", "A24c", "A24d"],
+  "Motor and premotor": ["A6DR", "A6Vb", "A6Va", "A8C", "A6M", "A6DC", "A4c", "A4ab"],
+  "Insula and rostral lateral sulcus": ["PaIM", "AI", "PaIL", "DI", "GI", "IPro", "TPro"],
+  "Somatosensory cortex": ["S2PR", "A3a", "S2PV", "A3b", "S2I", "S2E", "A1-2"],
+  "Auditory": ["AuRTL", "AuRT", "AuRPB", "AuRTM", "AuR", "AuRM", "AuAL", "AuA1", "AuCM", "AuCPB", "AuML", "AuCL"],
+  "Lateral and inferior temporal": ["TPPro", "STR", "TE1", "TPO", "ReI", "TE2", "PGa-IPa", "TPt", "TE3", "TEO"],
+  "Ventral temporal": ["Pir", "APir", "Ent", "A36", "A35", "TF", "TL", "TH", "TLO", "TFO"],
+  "Posterior cingulate, medial and retrosplenial": ["A23c", "A23a", "A29d", "A30", "A23b", "A29a-c", "A23V", "ProSt"],
+  "Posterior parietal": ["PF", "PE", "PFG", "A31", "AIP", "PG", "PEC", "VIP", "LIP", "PGM", "V6A", "OPt", "MIP"],
+  "Visual cortex": ["MST", "FST", "V5", "V4T", "A19M", "V3A", "V4", "V6", "A19DI", "V3", "V2", "V1"]
+  }
+ 
+]

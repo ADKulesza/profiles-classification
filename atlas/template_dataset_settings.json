@@ -1,0 +1,43 @@
+{
+    "profile_length": 128,
+    "case_list": [
+        "atlas"
+    ],
+    "stack_names": [
+        "average"
+    ],
+    "specific_sections_list": [],
+    "do_all_areas": false,
+    "number_of_labels": 116,
+    "do_exclude_zero": true,
+    "min_confidence_level": 0.55,
+    "max_confidence_level": 1.0,
+    "profile_mean_number": 0,
+    "specific_area_id_list": [
+        "%%area_id%%"
+    ],
+    "other_to_zero": true,
+    "max_label_amount": 500000,
+    "zero_profiles_number ": 5000000,
+    "adapt_label_amount": false,
+    "allow_replicate_profiles": false,
+    "balance_by_graph": false,
+    "reduce_label_impact": 8,
+    "random_number_generator_to_split": 42,
+    "cross_valid": true,
+    "valid_fold": 1,
+    "holdout_fold": 3,
+    "valid_size": 0.05,
+    "holdout_sections": [225, 523],
+    "norm_by_mean_std": true,
+    "random_seed": 42,
+    "add_noise": true,
+    "noise_ratio": 0.1,
+    "add_artifacts": true,
+    "artifacts_ratio": 0.005,
+    "number_of_epochs": 256,
+    "patience": 32,
+    "learning_rate": 0.01,
+    "batch_size": 256,
+    "max_bar_in_plot": 35
+}
