@@ -4,9 +4,11 @@ source header.sh
 
 CONFUSION_MATRIX='false'
 CONFUSION_MATRIX_REGION='false'
+CONFUSION_MATRIX_TYPES='false'
+CONFIDENCE_VS_TYPE='true'
 CONFIDENCE_PER_LABEL='false'
 METRICS='false'
-METRICS_VS_TYPE='true'
+METRICS_VS_TYPE='false'
 
 CAM_VISUALIZATION='false'
 CAM_VISUALIZATION_PROFILE='false'
@@ -58,6 +60,39 @@ if [ ${CONFUSION_MATRIX_REGION} = 'true' ]; then
     done
   done
 
+
+fi
+
+if [ ${CONFUSION_MATRIX_TYPES} = 'true' ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+      for model_set_dir in ${holdout_dir}/*_set_*/
+      do
+        cmat_dir="${model_set_dir}/${STEP_06_TYPE_CMAT_DIR}"
+
+        python ${CODEBASE_DIR}/step_08_plot_types_cmat.py \
+        --input-directory ${cmat_dir} \
+        --label-names "${LABEL_NAMES}" \
+        --output-confmat-plot "${cmat_dir}"
+    done
+  done
+
+
+fi
+
+if [ ${CONFIDENCE_VS_TYPE} = 'true' ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+      do
+        output_dir="${model_set_dir}/${STEP_08_CONFIDENCE_VS_TYPE_DIR}"
+
+        mkdir -p ${output_dir}
+
+        python ${CODEBASE_DIR}/step_08_boxplot_confidence_vs_type.py \
+        --validation-csv ${model_set_dir}/"results.csv" \
+        --label-names "${LABEL_NAMES}" \
+        --output-dir "${output_dir}"
+    done
+  done
 
 fi
 

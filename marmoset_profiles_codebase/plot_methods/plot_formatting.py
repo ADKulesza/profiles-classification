@@ -82,7 +82,12 @@ class AxesFormatting:
         self._ax.spines["bottom"].set_position(("data", y_axis["min"]))
         self._ax.spines["bottom"].set_bounds(x_axis["min"], x_axis["max"])
 
-        labels = map(lambda x: "0" if x == 0 else "{:.1f}".format(x), x_majors)
+        if x_axis["max"] <= 1:
+            labels = map(lambda x: "0" if x == 0 else "{:.1f}".format(x), x_majors)
+
+        else:
+            labels = map(lambda x: "0" if x == 0 else "{:.0f}".format(x), x_majors)
+
         self._ax.set_xticks(x_majors)
         self._ax.set_xticklabels(labels)
 
@@ -98,7 +103,11 @@ class AxesFormatting:
         )
         self._ax.spines["left"].set_bounds(y_axis["min"], y_axis["max"])
 
-        labels = map(lambda x: "{:.0f}".format(x), y_majors)
+        if y_axis["max"] <= 1:
+            labels = map(lambda x: "{:.1f}".format(x), y_majors)
+        else:
+            labels = map(lambda x: "{:.0f}".format(x), y_majors)
+
         self._ax.set_yticks(y_majors)
         self._ax.set_yticklabels(labels)
 

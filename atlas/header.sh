@@ -86,10 +86,12 @@ STEP_06_NORM_PROFILES="x_norm.npy"
 
 STEP_06_SECTION_EVALUATION="sections"
 STEP_06_SECTION_CSV="section_holdout.csv"
+STEP_06_TYPE_CMAT_DIR="type_cmat"
 
 STEP_06_EVALUATION_ONE_VS_ALL='step_06_evaluation_one_vs_all'
 STEP_06_SUMMARY_ONE_VS_ALL='summary_one_vs_all'
 
+STEP_08_CONFIDENCE_VS_TYPE_DIR='confidence_vs_type'
 STEP_08_METRICS_VS_DIR='metrics_vs'
 
 

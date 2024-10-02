@@ -1,8 +1,9 @@
 #!/bin/bash -xe
 
-DO_HOLDOUT_PREDICT='true'
+DO_HOLDOUT_PREDICT='false'
 DO_HOLDOUT_CONFMAT='false'
-DO_METRICS='true'
+DO_HOLDOUT_TYPES_CONFMAT='true'
+DO_METRICS='false'
 
 DO_SECTION_EVALUATION='false'
 
@@ -83,6 +84,29 @@ if [ ${DO_HOLDOUT_CONFMAT} = true ]; then
 
 fi
 
+if [ ${DO_HOLDOUT_TYPES_CONFMAT} = true ]; then
+
+  reformat_labels_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_REFORMAT_LABELS_DIR}
+
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/
+    do
+      for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+          output_dir="${model_set_dir}/${STEP_06_TYPE_CMAT_DIR}"
+          mkdir -p ${output_dir}
+
+          python ${CODEBASE_DIR}/step_06_04_get_type_cmat.py \
+          --validation-csv ${model_set_dir}/"results.csv"\
+          --labels-processed ${reformat_labels_dir}/${STEP_04_LABELS_PROCESSED} \
+          --output-dir ${output_dir}
+
+      done
+    done
+
+
+fi
+
+
 if [ ${DO_METRICS} = true ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/
     do
@@ -90,7 +114,7 @@ if [ ${DO_METRICS} = true ]; then
         do
           mkdir -p ${model_set_dir}/${STEP_06_METRICS_DIR}
 
-          python ${CODEBASE_DIR}/step_06_04_get_metrics.py \
+          python ${CODEBASE_DIR}/step_06_05_get_metrics.py \
           --validation-csv ${model_set_dir}/"results.csv"\
           --output-dir ${model_set_dir}/${STEP_06_METRICS_DIR}
       done
@@ -98,7 +122,7 @@ if [ ${DO_METRICS} = true ]; then
   done
 
 
-  python ${CODEBASE_DIR}/step_06_05_aggregate_metrics.py \
+  python ${CODEBASE_DIR}/step_06_06_aggregate_metrics.py \
     --evaluation-dir ${STEP_06_EVALUATION_ALL_VS_ALL}\
     --output ${STEP_06_EVALUATION_ALL_VS_ALL}/"all_macro_metrics.csv" \
     --area-output ${STEP_06_EVALUATION_ALL_VS_ALL}/"all_area_metrics.csv"
@@ -114,7 +138,7 @@ if [ ${DO_SECTION_EVALUATION} = true ]; then
 
   mkdir -p "${sections_dir}"
 
-  python ${CODEBASE_DIR}/step_06_06_get_holdout_sections_evaluation_sets.py \
+  python ${CODEBASE_DIR}/step_06_07_get_holdout_sections_evaluation_sets.py \
             --config-fname ${CONFIG_FNAME} \
             --profiles ${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES} \
             --profiles-csv ${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES_CSV} \
@@ -132,21 +156,6 @@ if [ ${DO_SECTION_EVALUATION} = true ]; then
       _set_dir=${_set_dir##*/}
 
       section_model_dir=${sections_dir}/${_set_dir}
-#      mkdir -p ${section_model_dir}
-
-#      python ${CODEBASE_DIR}/step_06_07_predict_sections_all_vs_all.py \
-#        --profiles ${sections_dir}/${STEP_06_NORM_PROFILES} \
-#        --profiles-csv ${sections_dir}/${STEP_06_SECTION_CSV} \
-#        --labels-processed ${reformat_labels_dir}/${STEP_04_LABELS_PROCESSED} \
-#        --label-names ${LABEL_NAMES} \
-#        --area-order "areas_order.json" \
-#        --model-path ${model_set_dir} \
-#        --output-dir ${section_model_dir}
-#
-#        python ${CODEBASE_DIR}/step_06_08_get_vtk_sections.py --config-fname ${CONFIG_FNAME}\
-#        --profiles-csv ${section_model_dir}/"results.csv" \
-#        --streamlines-dir ${STEP_01_STREAMLINES} \
-#        --output ${section_model_dir}
     done
 
 fi
