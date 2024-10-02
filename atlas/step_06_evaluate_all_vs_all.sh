@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-DO_HOLDOUT_PREDICT='false'
+DO_HOLDOUT_PREDICT='true'
 DO_HOLDOUT_CONFMAT='false'
 DO_METRICS='true'
 

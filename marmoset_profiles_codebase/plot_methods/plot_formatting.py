@@ -473,10 +473,6 @@ class AxesFormattingVerticalBarhPlot(AxesFormatting):
         self._ax.set_xticks(x_majors)
         self._ax.set_xticklabels(x_labels)
 
-        # TODO if?
-        # minor_locator = FixedLocator([0.25, 0.75])
-        # self._ax.xaxis.set_minor_locator(minor_locator)
-
     def _set_y_axis(self, y_axis, x_axis, y_labels, span_limits):
         y_majors = np.arange(
             y_axis["min"], y_axis["max"] + y_axis["step"], y_axis["step"]

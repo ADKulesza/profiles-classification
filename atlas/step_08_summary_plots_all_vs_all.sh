@@ -5,7 +5,8 @@ source header.sh
 CONFUSION_MATRIX='false'
 CONFUSION_MATRIX_REGION='false'
 CONFIDENCE_PER_LABEL='false'
-METRICS='true'
+METRICS='false'
+METRICS_VS_TYPE='true'
 
 CAM_VISUALIZATION='false'
 CAM_VISUALIZATION_PROFILE='false'
@@ -64,9 +65,26 @@ if [ ${METRICS} = 'true' ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
     for model_set_dir in ${holdout_dir}/*_set_*/
       do
-      python ${CODEBASE_DIR}/step_08_plot_metrics.py \
+      python ${CODEBASE_DIR}/step_08_plot_metrics_zoom.py \
       --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
       --output-dir ${model_set_dir}/${STEP_06_METRICS_DIR}
+    done
+  done
+
+fi
+
+if [ ${METRICS_VS_TYPE} = 'true' ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+      do
+        output_dir="${model_set_dir}/${STEP_08_METRICS_VS_DIR}"
+
+        mkdir -p ${output_dir}
+
+        python ${CODEBASE_DIR}/step_08_plot_metrics_vs_type.py \
+        --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
+        --label-names "${LABEL_NAMES}" \
+        --output-dir "${output_dir}"
     done
   done
 
@@ -86,19 +104,7 @@ if [ ${CONFIDENCE_PER_LABEL} = 'true' ]; then
   done
 fi
 
-#
-#if [ ${CONFUSION_MATRIX_ROI} = 'true' ]
-#  then
-#    output_picked_dir=${OUTPUT_DIR}/${OUTPUT_PICKED_PROFILES_DIR}
-#
-#    python3 ${CODEBASE_DIR}/step_08_plot_cmat_roi.py \
-#            --confmat ${output_hold_out}/${OUTPUT_CONFMAT_PLOT_NAME}.npy \
-#            --labels-processed ${output_picked_dir}/${OUTPUT_LABELS_IDX}\
-#            --label-names ${LABEL_NAMES}\
-#            --show-values \
-#            --output-confmat-plot ${output_hold_out}/${OUTPUT_CONFMAT_PLOT_NAME}_roi
-#fi
-#
+
 if [ ${CAM_VISUALIZATION} = 'true' ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/*/; do
     for heatmap in ${holdout_dir}"heatmap*.npy"; do

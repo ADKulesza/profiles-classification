@@ -16,7 +16,7 @@ STREAMLINES_SCRIPT="/opt/LaplacianCorticalThickness/pythickener/thickness.py"
 SECTION_SPACING=1
 
 CONFIG_FNAME='dataset_settings.json'
-LABEL_NAMES='label_names.csv'
+LABEL_NAMES='areas_definitions.csv'
 AREAS_ORDER='areas_order.json'
 OUTPUT_GRAPH='labels_graph.json'
 
@@ -89,6 +89,8 @@ STEP_06_SECTION_CSV="section_holdout.csv"
 
 STEP_06_EVALUATION_ONE_VS_ALL='step_06_evaluation_one_vs_all'
 STEP_06_SUMMARY_ONE_VS_ALL='summary_one_vs_all'
+
+STEP_08_METRICS_VS_DIR='metrics_vs'
 
 
 #
