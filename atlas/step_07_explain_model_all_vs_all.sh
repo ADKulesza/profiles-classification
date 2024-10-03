@@ -2,8 +2,8 @@
 
 source header.sh
 
-CAM_EXP='false'
-DO_BOOTSTRAP='true'
+CAM_EXP='true'
+DO_BOOTSTRAP='false'
 
 #output_picked_dir=${OUTPUT_DIR}/${OUTPUT_PICKED_PROFILES_DIR}
 #
@@ -16,18 +16,25 @@ output_norm_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_NORM_DIR}
 
 if [ ${CAM_EXP} = true ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+      holdout_id=${holdout_dir#*/}
+      holdout_id="${holdout_id%%/}"
 
-    holdout_id=${holdout_dir#*/}
-    holdout_id="${holdout_id%%/}"
 
-    python ${CODEBASE_DIR}/step_07_get_heatmaps.py --config-fname ${CONFIG_FNAME}\
-        --profiles ${holdout_dir}"x_norm.npy" \
-        --holdout-id ${holdout_id} \
-        --profiles-csv ${holdout_dir}/"holdout_info.csv" \
-        --models-info ${STEP_05_MODELS}/${STEP_05_MODEL_INFO_CSV} \
-        --models-order ${STEP_06_EVALUATION_ALL_VS_ALL}/${STEP_06_MODELS_ORDER} \
-        --output-dir ${STEP_06_EVALUATION_ALL_VS_ALL}
+      model_id="${model_set_dir#*/}"
+      output="${STEP_06_EVALUATION_ALL_VS_ALL}/${model_id}/${STEP_07_HEATMAPS}"
 
+      model_id="${model_id#*/}"
+      model_path="${STEP_05_MODELS}/${model_id}"
+
+      mkdir -p ${output}
+
+      python ${CODEBASE_DIR}/step_07_get_heatmaps.py --config-fname ${CONFIG_FNAME}\
+          --profiles ${holdout_dir}"x_norm.npy" \
+          --model ${model_path} \
+          --output ${output}
+    done
   done
 fi
 

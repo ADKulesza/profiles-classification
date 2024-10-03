@@ -2,8 +2,10 @@
 
 DO_HOLDOUT_PREDICT='false'
 DO_HOLDOUT_CONFMAT='false'
-DO_HOLDOUT_TYPES_CONFMAT='true'
+DO_HOLDOUT_TYPES_CONFMAT='false'
 DO_METRICS='false'
+DO_PRED_ACROSS_TYPES='false'
+DO_ERRORS_ACROSS_TYPES='true'
 
 DO_SECTION_EVALUATION='false'
 
@@ -157,5 +159,43 @@ if [ ${DO_SECTION_EVALUATION} = true ]; then
 
       section_model_dir=${sections_dir}/${_set_dir}
     done
+
+fi
+
+if [ ${DO_PRED_ACROSS_TYPES} = true ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/
+    do
+      for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+          output_dir="${model_set_dir}/${STEP_06_PRED_ACROSS_TYPE}"
+          mkdir -p ${output_dir}
+
+          python ${CODEBASE_DIR}/step_06_09_get_pred_across_area_type.py \
+          --validation-csv ${model_set_dir}/"results.csv"\
+          --pred-y ${model_set_dir}/"pred_y.npy"\
+          --output-dir ${output_dir}
+      done
+
+  done
+
+
+fi
+
+
+if [ ${DO_ERRORS_ACROSS_TYPES} = true ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/
+    do
+      for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+          output_dir="${model_set_dir}/${STEP_06_ERRORS_ACROSS_TYPE}"
+          mkdir -p ${output_dir}
+
+          python ${CODEBASE_DIR}/step_06_10_errors_across_type.py \
+          --validation-csv ${model_set_dir}/"results.csv"\
+          --cmat ${model_set_dir}/"cmat.npy"\
+          --output-dir ${output_dir}
+      done
+
+  done
 
 fi

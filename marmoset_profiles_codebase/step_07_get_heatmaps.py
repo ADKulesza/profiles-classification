@@ -3,12 +3,13 @@ import logging
 import os
 
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
 from dataset_configuration import DatasetConfiguration
-from read_json import read_json
+
+from cnn_models.multi_branch_model import multi_branch_model
+from cnn_models.multi_branch_binary_model import multi_branch_binary_model
 
 C_LOGGER_NAME = "explanation"
 logging.basicConfig(
@@ -33,7 +34,6 @@ def make_gradcam_heatmap(profile, model, last_conv_idx, pred_index=None):
 
     # Then, we compute the gradient of the top predicted class for our input image
     # with respect to the activations of the last conv layer
-
     profile_t = tf.convert_to_tensor(profile)
 
     with tf.GradientTape() as tape1:
@@ -45,7 +45,7 @@ def make_gradcam_heatmap(profile, model, last_conv_idx, pred_index=None):
 
     S_deriv1 = tape1.gradient(S_c, A)
 
-    S_deriv1_2 = S_deriv1**2
+    S_deriv1_2 = S_deriv1 ** 2
     S_deriv1_3 = S_deriv1_2 * S_deriv1
 
     A_sum = tf.reduce_sum(A, 1)
@@ -66,7 +66,7 @@ def make_gradcam_heatmap(profile, model, last_conv_idx, pred_index=None):
         heatmap = tf.fill(tf.shape(heatmap), 0)
     else:
         heatmap = (heatmap - tf.math.reduce_min(heatmap)) / (
-            tf.math.reduce_max(heatmap) - tf.math.reduce_min(heatmap)
+                tf.math.reduce_max(heatmap) - tf.math.reduce_min(heatmap)
         )
 
     return heatmap.numpy(), pred_index
@@ -79,26 +79,16 @@ def read_data(paths):
     profiles = np.load(paths.profiles_npy)
     logger.info("%s", paths.profiles_npy)
 
-    # Loading .csv file with information about profiles
-    profiles_df = pd.read_csv(paths.profiles_csv)
-    logger.info("%s", paths.profiles_csv)
-
-    model_order = read_json(paths.models_order)
-    models_df = pd.read_csv(paths.models)
-
-    models_path = models_df[models_df.set.isin(model_order[paths.holdout_id])].path
-    models_dict = {}
-    for set_id, m_path in zip(models_path, model_order[paths.holdout_id]):
-        # , custom_objects={"numpy": numpy}
-        models_dict[set_id] = m_path
+    model = load_model(paths.model)
+    logger.info("%s", paths.model)
 
     logger.info("Loading data... Done!")
 
-    return profiles, profiles_df, models_dict, models_df
+    return profiles, model
 
 
 def process(config, paths):
-    profiles, profiles_df, models_dict, models_df = read_data(paths)
+    profiles, model = read_data(paths)
 
     profile_len = config("profile_length")
 
@@ -111,37 +101,30 @@ def process(config, paths):
 
     x_test = profiles.reshape((profiles.shape[0], profiles.shape[1], 1))
 
-    for m_path, set_id in models_dict.items():
-        logger.info("Loading model...")
-        logger.info("%s", m_path)
-        model = load_model(m_path)
+    logger.info("%s", model.summary())
 
-        logger.info("Loading model... Done!")
+    layer_index = 32
+    logger.info("Last conv layer: %s", model.layers[32].name)
 
-        logger.info("%s", model.summary())
+    heatmaps_output = np.zeros(x_test.shape[:-1])
+    n_profiles = x_test.shape[0]
 
-        layer_index = 32
-        logger.info("Last conv layer: %s", model.layers[32].name)
+    for x_i in range(n_profiles):
+        logger.info("Validation of %s/%s profile", x_i, n_profiles)
 
-        heatmaps_output = np.zeros(x_test.shape[:-1])
-        n_profiles = x_test.shape[0]
+        data = x_test[x_i]
+        data = np.expand_dims(data, axis=0)
+        heatmap, pred = make_gradcam_heatmap(data, model, layer_index)
+        n_hm = heatmap.shape[0]
+        x_hm = np.arange(0, n_hm, n_hm / profile_len)
+        xp_hm = np.arange(n_hm)
+        heatmap_interp = np.interp(x_hm, xp_hm, heatmap)
+        heatmaps_output[x_i, :] = heatmap_interp
 
-        for x_i in range(n_profiles):
-            logger.info("Validation of %s/%s profile", x_i, n_profiles)
-
-            data = x_test[x_i]
-            data = np.expand_dims(data, axis=0)
-            heatmap, pred = make_gradcam_heatmap(data, model, layer_index)
-            n_hm = heatmap.shape[0]
-            x_hm = np.arange(0, n_hm, n_hm / profile_len)
-            xp_hm = np.arange(n_hm)
-            heatmap_interp = np.interp(x_hm, xp_hm, heatmap)
-            heatmaps_output[x_i, :] = heatmap_interp
-
-        del model
-        hm_path = os.path.join(paths.output, paths.holdout_id, f"heatmap_{set_id}.npy")
-        np.save(hm_path, heatmaps_output)
-        logger.info("Heatmap has been saved... %s", hm_path)
+    del model
+    hm_path = os.path.join(paths.output, f"{paths.model[:-1]}.npy")
+    np.save(hm_path, heatmaps_output)
+    logger.info("Heatmap has been saved... %s", hm_path)
 
 
 def parse_args():
@@ -172,48 +155,18 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-i",
-        "--holdout-id",
+        "-m",
+        "--model",
         required=True,
-        dest="holdout_id",
-        type=str,
-        metavar="FILENAME",
-        help="Path to  directory",
-    )
-
-    parser.add_argument(
-        "-s",
-        "--profiles-csv",
-        required=True,
-        dest="profiles_csv",
+        dest="model",
         type=str,
         metavar="FILENAME",
         help="Path to ",
     )
 
     parser.add_argument(
-        "-m",
-        "--models-info",
-        required=True,
-        dest="models",
-        type=str,
-        metavar="FILENAME",
-        help="Path to  directory",
-    )
-
-    parser.add_argument(
-        "-j",
-        "--models-order",
-        required=True,
-        dest="models_order",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output",
-    )
-
-    parser.add_argument(
         "-o",
-        "--output-dir",
+        "--output",
         required=True,
         dest="output",
         type=str,
