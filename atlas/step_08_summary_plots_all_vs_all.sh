@@ -5,12 +5,12 @@ source header.sh
 CONFUSION_MATRIX='false'
 CONFUSION_MATRIX_REGION='false'
 CONFUSION_MATRIX_TYPES='false'
-CONFIDENCE_VS_TYPE='true'
+CONFIDENCE_VS_TYPE='false'
 CONFIDENCE_PER_LABEL='false'
 METRICS='false'
 METRICS_VS_TYPE='false'
 
-CAM_VISUALIZATION='false'
+CAM_VISUALIZATION='true'
 CAM_VISUALIZATION_PROFILE='false'
 CAM_VISUALIZATION_SIG='false'
 
@@ -142,11 +142,16 @@ fi
 
 if [ ${CAM_VISUALIZATION} = 'true' ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/*/; do
-    for heatmap in ${holdout_dir}"heatmap*.npy"; do
-      plots_dir=${holdout_dir}/'cam_heatmap_stat_plots'
+    for model_set_dir in ${holdout_dir}/*_set_*/
+      do
+
+      plots_dir="${model_set_dir}/${STEP_07_HEATMAPS}"
       mkdir -p ${plots_dir}
 
-      df_path="${holdout_dir}results.csv"
+      heatmap="${plots_dir}/heatmap.npy"
+
+      df_path="${model_set_dir}results.csv"
+
       python ${CODEBASE_DIR}/step_08_CAM_medians.py --config-fname ${CONFIG_FNAME} \
       --label-names ${LABEL_NAMES}\
       --heatmaps ${heatmap} \
@@ -180,12 +185,3 @@ fi
 #            --output-dir ${plots_dir}
 #fi
 #
-#if [ ${PLOT_METRICS} = 'true' ]
-#  then
-#  plots_dir=${output_hold_out}/"metrics"
-#  mkdir -p ${plots_dir}
-#  python3 ${CODEBASE_DIR}/step_08_plot_metrics.py \
-#          --area-metrics-csv ${output_hold_out}/"area_metrics.csv" \
-#          --label-names ${LABEL_NAMES} \
-#          --output-dir ${plots_dir}
-#fi

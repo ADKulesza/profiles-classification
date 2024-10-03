@@ -17,133 +17,117 @@ logging.basicConfig(
 )
 logger = logging.getLogger(C_LOGGER_NAME)
 
+N_BLOCKS = 32
+K_BOOTSTRAP = 10000
+
+COLUMNS_DF = ["left_whisker_h0", "q1_h0", "median_h0", "q3_h0", "right_whisker_ho"]
+
 
 def read_data(paths):
     logger.info("Loading data...")
-
-    label_names = pd.read_csv(paths.label_names)
-    logger.info("%s", paths.label_names)
 
     # Loading .csv file with information about profiles
     profiles_df = pd.read_csv(paths.profiles_csv)
     logger.info("%s", paths.profiles_csv)
 
-    heatmaps_list = glob.glob(paths.output + "heatmap_*.npy")
-    logger.info("%s", heatmaps_list)
+    heatmap = np.load(paths.heatmap)
+    logger.info("%s", paths.heatmap)
 
     logger.info("Loading data... Done!")
 
-    return label_names, profiles_df, heatmaps_list
+    return profiles_df, heatmap
 
 
-# TODO !
 def process(config, paths):
-    label_names, profiles_df, hm_list = read_data(paths)
+    profiles_df, heatmaps = read_data(paths)
 
-    profiles_df = pd.merge(profiles_df, label_names, on="area_id")
     profile_len = config("profile_length")
-    area_id_list = np.array(profiles_df.area_id.unique())
+    area_list = pd.unique(profiles_df.area)
 
-    # TODO zmienne
-    n_blocks = 32
-    k_bootstrap = 10000
+    area_profiles = {}
+    real_heatmap_dict = {}
+    bootstrap_dict = {}
+    out_df_dict = {
+        "area": [],
+        "left_whisker_h0": [],
+        "q1_h0": [],
+        "median_h0": [],
+        "q3_h0": [],
+        "right_whisker_h0": []
+    }
 
-    for hm_path in hm_list:
-        logger.info("Loading heatmaps...")
-        logger.info("%s", hm_path)
-        heatmaps = np.load(hm_path)
+    for _area in area_list:
+        _df = profiles_df[profiles_df.area == _area]
+        array_idx = np.array(_df.index_in_npy_array)
 
-        heatmaps_dict = {}
-        all_values = np.array([])
-        area_profiles_number = {}
-        medians_dict = {}
+        n_profiles = array_idx.shape[0]
 
-        out_df_dict = {
-            "area_id": [],
-            "median_diff_stat": [],
-            "q1_diff_stat": [],
-            "q3_diff_stat": [],
-            "idx": [],
-        }
+        logger.info("Area: %s2 Profiles %s", _area, n_profiles)
 
-        for _area_id in area_id_list:
+        area_profiles[_area] = array_idx
+        bootstrap_dict[_area] = np.zeros((K_BOOTSTRAP, 5, N_BLOCKS))
 
-            _df = profiles_df[profiles_df.area_id == _area_id]
-            array_idx = np.array(_df.index_in_npy_array)
-            no_profiles = array_idx.shape[0]
+        _heatmaps = heatmaps[array_idx, :]
+        _heatmaps = np.reshape(_heatmaps, (-1, N_BLOCKS), order="F")
 
-            logger.info("Area: %s2 Profiles %s", _area_id, no_profiles)
+        #  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
+        # IQR = Q3 - Q1
+        real_heatmap_stat = np.zeros((5, N_BLOCKS))
+        real_heatmap_stat[1] = np.percentile(_heatmaps, 25, axis=0)
+        real_heatmap_stat[2] = np.median(_heatmaps, axis=0)
+        real_heatmap_stat[3] = np.percentile(_heatmaps, 75, axis=0)
+        IQR = real_heatmap_stat[3] - real_heatmap_stat[1]
+        real_heatmap_stat[0] = real_heatmap_stat[1] - 1.5 * IQR
+        real_heatmap_stat[4] = real_heatmap_stat[3] + 1.5 * IQR
 
-            area_profiles_number[_area_id] = no_profiles
+        real_heatmap_dict[_area] = real_heatmap_stat
 
-            _heatmaps = np.zeros((no_profiles, profile_len))
-            _heatmaps[:] = heatmaps[array_idx, :]
-            _heatmaps = np.reshape(_heatmaps, (-1, n_blocks), order="F")
+        area_dir = os.path.join(paths.output, f"{_area}")
+        if os.path.exists(area_dir):
+            continue
+        else:
+            os.mkdir(area_dir)
 
-            if all_values.shape[0] == 0:
-                all_values = _heatmaps
-            else:
-                all_values = np.concatenate((all_values, _heatmaps), axis=0)
+        area_hm_path = os.path.join(area_dir, "real_heatmap.npy")
+        np.save(area_hm_path, real_heatmap_stat)
 
-            medians_dict[_area_id] = np.zeros((k_bootstrap, 3, n_blocks))
-            # median = np.median(x_arr, axis=0)
-            # q1 = np.percentile(x_arr, 25, axis=0)
-            # q3 = np.percentile(x_arr, 75, axis=0)
-            heatmaps_dict[_area_id] = np.array(
-                [
-                    np.median(_heatmaps, axis=0),
-                    np.percentile(_heatmaps, 25, axis=0),
-                    np.percentile(_heatmaps, 75, axis=0),
-                ]
-            )
+    shuffle_heatmaps = heatmaps.copy()
+    for i in range(K_BOOTSTRAP):
+        logger.info("%s/%s", i, K_BOOTSTRAP)
+        random_idx = np.random.rand(heatmaps.shape[0]).argsort(axis=0)
+        shuffle_heatmaps = shuffle_heatmaps.take(random_idx, axis=0)
 
-        baseline = np.zeros((area_id_list.shape[0], n_blocks))
+        for _area, _area_idx in area_profiles.items():
+            _heatmaps = heatmaps[_area_idx, :]
+            _heatmaps = np.reshape(_heatmaps, (-1, N_BLOCKS), order="F")
+            _heatmap_bootstrap = bootstrap_dict[_area][i]
 
-        for i in range(k_bootstrap):
-            logger.info("%s/%s", i, k_bootstrap)
-            last_idx = 0
-            np.random.shuffle(all_values)
-            for j, _area_id in enumerate(area_id_list):
-                n_prof = area_profiles_number[_area_id]
-                _x_arr = all_values[last_idx : last_idx + n_prof]
-                medians_dict[_area_id][i] = np.array(
-                    [
-                        np.median(_x_arr, axis=0),
-                        np.percentile(_x_arr, 25, axis=0),
-                        np.percentile(_x_arr, 75, axis=0),
-                    ]
-                )
+            #  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
+            # IQR = Q3 - Q1
+            _heatmap_bootstrap[1] = np.percentile(_heatmaps, 25, axis=0)
+            _heatmap_bootstrap[2] = np.median(_heatmaps, axis=0)
+            _heatmap_bootstrap[3] = np.percentile(_heatmaps, 75, axis=0)
+            IQR = _heatmap_bootstrap[3] - _heatmap_bootstrap[1]
+            _heatmap_bootstrap[0] = _heatmap_bootstrap[1] - 1.5 * IQR
+            _heatmap_bootstrap[4] = _heatmap_bootstrap[3] + 1.5 * IQR
 
-                last_idx += n_prof
-                baseline[j] += np.mean(_x_arr, axis=0)
+    for _area, _area_idx in area_profiles.items():
+        _heatmap_straps = bootstrap_dict[_area]
+        _real_heatmap_area = real_heatmap_dict[_area]
+        # out_df_dict["area"].append(_area)
+        strap_heatmap_stat = np.zeros((5, N_BLOCKS))
+        for i_stat in range(5):
+            stat_diff = np.abs(_heatmap_straps[:, i_stat] - _real_heatmap_area[i_stat])
+            stat_count = np.sum(stat_diff > _real_heatmap_area[i_stat], axis=0) / K_BOOTSTRAP
+            # out_df_dict[COLUMNS_DF[i_stat]].append(stat_count)
+            strap_heatmap_stat[i_stat] = stat_count
 
-        baseline /= k_bootstrap
-        for i, _area_id in enumerate(area_id_list):
-            m_diff = np.abs(medians_dict[_area_id][:, 0] - heatmaps_dict[_area_id][0])
-            m_diff = np.sum(m_diff > heatmaps_dict[_area_id][0], axis=0) / k_bootstrap
-            q1_diff = np.abs(medians_dict[_area_id][:, 1] - heatmaps_dict[_area_id][1])
-            q1_diff = np.sum(q1_diff > heatmaps_dict[_area_id][0], axis=0) / k_bootstrap
-            q3_diff = np.abs(medians_dict[_area_id][:, 2] - heatmaps_dict[_area_id][2])
-            q3_diff = np.sum(q3_diff > heatmaps_dict[_area_id][0], axis=0) / k_bootstrap
-            # logger.info("%s %s %s", m_diff.shape, q1_diff.shape, q3_diff.shape)
-            out_df_dict["area_id"].append(_area_id)
-            out_df_dict["median_diff_stat"].append(m_diff)
-            out_df_dict["q1_diff_stat"].append(q1_diff)
-            out_df_dict["q3_diff_stat"].append(q3_diff)
-            out_df_dict["idx"].append(i)
+        area_dir = os.path.join(paths.output, f"{_area}")
 
-        out_df = pd.DataFrame(out_df_dict)
-        out_df_path = os.path.join(paths.output, f"cam_stat_{paths.holdout_id}.csv")
-        out_df.to_csv(out_df_path)
+        area_hm_path = os.path.join(area_dir, "heatmap_stats.npy")
+        np.save(area_hm_path, strap_heatmap_stat)
 
-        npy_path = os.path.join(paths.output, f"cam_baseline_{paths.holdout_id}.npy")
-        np.save(npy_path, baseline)
-    #
-    # # area_name = _df.area.values[0]
-    # # fname_hm = os.path.join(paths.output_dir, area_name + ".png")
-    #
-    # # all_values = np.vstack(heatmaps_dict.values())
-    logger.info(heatmaps_dict)
+    # out_df = pd.DataFrame(out_df_dict)
 
 
 def parse_args():
@@ -164,30 +148,20 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-l",
-        "--label-names",
-        required=True,
-        dest="label_names",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output csv file with",
-    )
-
-    parser.add_argument(
-        "-i",
-        "--holdout-id",
-        required=True,
-        dest="holdout_id",
-        type=str,
-        metavar="FILENAME",
-        help="Path to  directory",
-    )
-
-    parser.add_argument(
         "-s",
         "--profiles-csv",
         required=True,
         dest="profiles_csv",
+        type=str,
+        metavar="FILENAME",
+        help="Path to ",
+    )
+
+    parser.add_argument(
+        "-m",
+        "--heatmap",
+        required=True,
+        dest="heatmap",
         type=str,
         metavar="FILENAME",
         help="Path to ",

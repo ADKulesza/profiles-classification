@@ -122,7 +122,7 @@ def process(config, paths):
         heatmaps_output[x_i, :] = heatmap_interp
 
     del model
-    hm_path = os.path.join(paths.output, f"{paths.model[:-1]}.npy")
+    hm_path = os.path.join(paths.output, f"heatmap.npy")
     np.save(hm_path, heatmaps_output)
     logger.info("Heatmap has been saved... %s", hm_path)
 

@@ -40,13 +40,14 @@ fi
 
 if [ ${DO_BOOTSTRAP} = true ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+            heatmap_dir="${model_set_dir}/${STEP_07_HEATMAPS}"
 
-    holdout_id=${holdout_dir#*/}
-    holdout_id="${holdout_id%%/}"
-      python ${CODEBASE_DIR}/step_07_heatmaps_bootstrap.py --config-fname ${CONFIG_FNAME}\
-        --label-names ${LABEL_NAMES}\
-        --holdout-id ${holdout_id} \
-        --profiles-csv ${holdout_dir}/"holdout_info.csv" \
-        --output-dir ${holdout_dir}
+            python ${CODEBASE_DIR}/step_07_heatmaps_bootstrap.py --config-fname "${CONFIG_FNAME}"\
+              --profiles-csv ${model_set_dir}/"results.csv" \
+              --heatmap "${heatmap_dir}/heatmap.npy" \
+              --output-dir "${heatmap_dir}"
+        done
     done
 fi

@@ -218,9 +218,6 @@ def get_plot(stat, output_path, area_name):
 
 def process(paths):
     profiles_df = pd.read_csv(paths.output_csv)
-    label_names = pd.read_csv(paths.label_names)
-
-    profiles_df = pd.merge(profiles_df, label_names, on="area_id")
 
     heatmaps = np.load(paths.heatmaps)
     logger.info(heatmaps)
