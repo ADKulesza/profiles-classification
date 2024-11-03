@@ -1,0 +1,116 @@
+,area_id,area,model_idx,region,region_order,type_id,type,color_r,color_b,color_g
+0,2,A10,0,Dorsolateral prefrontal,0,2,Eu2,255.0,59.0,109.0
+1,48,A9,1,Dorsolateral prefrontal,0,2,Eu2,233.0,0.0,80.0
+2,33,A46V,2,Dorsolateral prefrontal,0,2,Eu2,255.0,118.0,157.0
+3,32,A46D,3,Dorsolateral prefrontal,0,2,Eu2,233.0,118.0,150.0
+4,45,A8aD,4,Dorsolateral prefrontal,0,2,Eu2,233.0,59.0,111.0
+5,47,A8b,5,Dorsolateral prefrontal,0,2,Eu2,255.0,0.0,83.0
+6,46,A8aV,6,Dorsolateral prefrontal,0,1,Eu3,255.0,178.0,202.0
+7,34,A47L,7,Ventrolateral prefrontal,1,2,Eu2,214.0,178.0,255.0
+8,35,A47M,8,Ventrolateral prefrontal,1,2,Eu2,115.0,0.0,255.0
+9,31,A45,9,Ventrolateral prefrontal,1,2,Eu2,114.0,0.0,233.0
+10,36,A47O,10,Ventrolateral prefrontal,1,3,Eu1,160.0,89.0,255.0
+11,103,ProM,11,Ventrolateral prefrontal,1,3,Eu1,148.0,89.0,233.0
+12,3,A11,12,Orbitofrontal,2,2,Eu2,233.0,59.0,191.0
+13,7,A13b,13,Orbitofrontal,2,4,Dys,233.0,0.0,188.0
+14,6,A13a,14,Orbitofrontal,2,4,Dys,212.0,0.0,168.0
+15,4,A13L,15,Orbitofrontal,2,3,Eu1,233.0,118.0,207.0
+16,5,A13M,16,Orbitofrontal,2,3,Eu1,255.0,0.0,199.0
+17,83,OPAl,17,Orbitofrontal,2,5,Agr,255.0,118.0,232.0
+18,84,OPro,18,Orbitofrontal,2,4,Dys,255.0,178.0,243.0
+19,73,Gu,19,Orbitofrontal,2,3,Eu1,255.0,59.0,219.0
+20,25,A32,20,Medial prefrontal,3,4,Dys,255.0,0.0,177.0
+21,26,A32V,21,Medial prefrontal,3,4,Dys,255.0,89.0,207.0
+22,9,A14R,22,Medial prefrontal,3,4,Dys,233.0,89.0,183.0
+23,8,A14C,23,Medial prefrontal,3,4,Dys,233.0,0.0,148.0
+24,20,A25,24,Medial prefrontal,3,4,Dys,255.0,178.0,230.0
+25,16,A24a,25,Medial prefrontal,3,5,Agr,255.0,178.0,179.0
+26,17,A24b,26,Medial prefrontal,3,4,Dys,223.0,0.0,8.0
+27,18,A24c,27,Medial prefrontal,3,4,Dys,255.0,89.0,99.0
+28,19,A24d,28,Medial prefrontal,3,4,Dys,255.0,0.0,22.0
+29,40,A6DR,29,Motor and premotor,4,3,Eu1,176.0,0.0,212.0
+30,43,A6Vb,30,Motor and premotor,4,3,Eu1,239.0,178.0,255.0
+31,42,A6Va,31,Motor and premotor,4,3,Eu1,200.0,59.0,233.0
+32,44,A8C,32,Motor and premotor,4,2,Eu2,208.0,118.0,233.0
+33,41,A6M,33,Motor and premotor,4,3,Eu1,208.0,0.0,255.0
+34,39,A6DC,34,Motor and premotor,4,3,Eu1,224.0,59.0,255.0
+35,38,A4c,35,Motor and premotor,4,2,Eu2,200.0,0.0,233.0
+36,37,A4ab,36,Motor and premotor,4,2,Eu2,237.0,118.0,255.0
+37,97,PaIM,37,Insula and rostral lateral sulcus,5,4,Dys,255.0,118.0,179.0
+38,50,AI,38,Insula and rostral lateral sulcus,5,5,Agr,233.0,0.0,89.0
+39,96,PaIL,39,Insula and rostral lateral sulcus,5,4,Dys,255.0,0.0,110.0
+40,67,DI,40,Insula and rostral lateral sulcus,5,4,Dys,233.0,118.0,164.0
+41,72,GI,41,Insula and rostral lateral sulcus,5,3,Eu1,212.0,0.0,86.0
+42,75,IPro,42,Insula and rostral lateral sulcus,5,4,Dys,255.0,178.0,210.0
+43,123,TPro,43,Insula and rostral lateral sulcus,5,4,Dys,255.0,59.0,151.0
+44,108,S2PR,44,Somatosensory cortex,6,2,Eu2,157.0,0.0,233.0
+45,29,A3a,45,Somatosensory cortex,6,2,Eu2,202.0,59.0,255.0
+46,109,S2PV,46,Somatosensory cortex,6,2,Eu2,167.0,0.0,255.0
+47,30,A3b,47,Somatosensory cortex,6,0,Kon,216.0,118.0,255.0
+48,107,S2I,48,Somatosensory cortex,6,2,Eu2,197.0,118.0,233.0
+49,106,S2E,49,Somatosensory cortex,6,2,Eu2,232.0,178.0,255.0
+50,1,A1-2,50,Somatosensory cortex,6,1,Eu3,189.0,59.0,233.0
+51,64,AuRTL,51,Auditory,7,2,Eu2,239.0,133.0,154.0
+52,63,AuRT,52,Auditory,7,1,Eu3,255.0,89.0,121.0
+53,62,AuRPB,53,Auditory,7,3,Eu1,207.0,44.0,74.0
+54,65,AuRTM,54,Auditory,7,2,Eu2,207.0,0.0,43.0
+55,60,AuR,55,Auditory,7,0,Kon,223.0,89.0,112.0
+56,61,AuRM,56,Auditory,7,2,Eu2,223.0,133.0,149.0
+57,55,AuAL,57,Auditory,7,2,Eu2,239.0,44.0,71.0
+58,54,AuA1,58,Auditory,7,0,Kon,223.0,0.0,28.0
+59,57,AuCM,59,Auditory,7,0,Kon,239.0,0.0,35.0
+60,58,AuCPB,60,Auditory,7,3,Eu1,255.0,44.0,77.0
+61,59,AuML,61,Auditory,7,2,Eu2,255.0,0.0,41.0
+62,56,AuCL,62,Auditory,7,1,Eu3,239.0,89.0,110.0
+63,122,TPPro,63,Lateral and inferior temporal,8,4,Dys,255.0,0.0,151.0
+64,111,STR,64,Lateral and inferior temporal,8,3,Eu1,255.0,133.0,159.0
+65,112,TE1,65,Lateral and inferior temporal,8,3,Eu1,233.0,59.0,150.0
+66,121,TPO,66,Lateral and inferior temporal,8,2,Eu2,255.0,118.0,197.0
+67,105,ReI,67,Lateral and inferior temporal,8,2,Eu2,233.0,59.0,139.0
+68,113,TE2,68,Lateral and inferior temporal,8,2,Eu2,233.0,118.0,180.0
+69,93,PGa-IPa,69,Lateral and inferior temporal,8,2,Eu2,255.0,59.0,158.0
+70,124,TPt,70,Lateral and inferior temporal,8,2,Eu2,223.0,44.0,84.0
+71,114,TE3,71,Lateral and inferior temporal,8,2,Eu2,233.0,0.0,128.0
+72,115,TEO,72,Lateral and inferior temporal,8,2,Eu2,255.0,178.0,221.0
+73,100,Pir,73,Ventral temporal,9,5,Agr,0.0,165.0,255.0
+74,70,Ent,74,Ventral temporal,9,5,Agr,80.0,0.0,233.0
+75,28,A36,75,Ventral temporal,9,3,Eu1,160.0,118.0,233.0
+76,27,A35,76,Ventral temporal,9,5,Agr,78.0,0.0,212.0
+77,116,TF,77,Ventral temporal,9,4,Dys,203.0,178.0,255.0
+78,119,TL,78,Ventral temporal,9,3,Eu1,117.0,59.0,255.0
+79,118,TH,79,Ventral temporal,9,5,Agr,113.0,59.0,233.0
+80,120,TLO,80,Ventral temporal,9,3,Eu1,157.0,118.0,255.0
+81,117,TFO,81,Ventral temporal,9,3,Eu1,81.0,0.0,255.0
+82,15,A23c,82,"Posterior cingulate, medial and retrosplenial",10,1,Eu3,223.0,118.0,213.0
+83,13,A23a,83,"Posterior cingulate, medial and retrosplenial",10,3,Eu1,255.0,178.0,246.0
+84,22,A29d,84,"Posterior cingulate, medial and retrosplenial",10,5,Agr,239.0,118.0,230.0
+85,23,A30,85,"Posterior cingulate, medial and retrosplenial",10,4,Dys,255.0,0.0,239.0
+86,14,A23b,86,"Posterior cingulate, medial and retrosplenial",10,2,Eu2,239.0,59.0,220.0
+87,21,A29a-c,87,"Posterior cingulate, medial and retrosplenial",10,5,Agr,223.0,59.0,209.0
+88,12,A23V,88,"Posterior cingulate, medial and retrosplenial",10,3,Eu1,255.0,59.0,231.0
+89,104,ProSt,89,"Posterior cingulate, medial and retrosplenial",10,5,Agr,239.0,0.0,231.0
+90,89,PF,90,Posterior parietal,11,2,Eu2,212.0,59.0,223.0
+91,87,PE,91,Posterior parietal,11,2,Eu2,233.0,118.0,239.0
+92,90,PFG,92,Posterior parietal,11,2,Eu2,240.0,59.0,255.0
+93,24,A31,93,Posterior parietal,11,2,Eu2,255.0,118.0,248.0
+94,51,AIP,94,Posterior parietal,11,2,Eu2,254.0,118.0,255.0
+95,91,PG,95,Posterior parietal,11,2,Eu2,248.0,178.0,255.0
+96,88,PEC,96,Posterior parietal,11,2,Eu2,210.0,0.0,223.0
+97,135,VIP,97,Posterior parietal,11,2,Eu2,230.0,0.0,255.0
+98,76,LIP,98,Posterior parietal,11,2,Eu2,221.0,118.0,223.0
+99,92,PGM,99,Posterior parietal,11,2,Eu2,223.0,0.0,214.0
+100,134,V6A,100,Posterior parietal,11,2,Eu2,109.0,0.0,207.0
+101,85,OPt,101,Posterior parietal,11,2,Eu2,230.0,0.0,239.0
+102,79,MIP,102,Posterior parietal,11,2,Eu2,234.0,59.0,239.0
+103,81,MST,103,Visual cortex,12,2,Eu2,169.0,89.0,223.0
+104,71,FST,104,Visual cortex,12,2,Eu2,153.0,44.0,223.0
+105,132,V5,105,Visual cortex,12,2,Eu2,182.0,133.0,223.0
+106,131,V4T,106,Visual cortex,12,2,Eu2,152.0,44.0,239.0
+107,11,A19M,107,Visual cortex,12,1,Eu3,147.0,0.0,239.0
+108,129,V3A,108,Visual cortex,12,1,Eu3,164.0,44.0,255.0
+109,130,V4,109,Visual cortex,12,1,Eu3,142.0,0.0,255.0
+110,133,V6,110,Visual cortex,12,2,Eu2,169.0,89.0,239.0
+111,10,A19DI,111,Visual cortex,12,1,Eu3,209.0,133.0,255.0
+112,128,V3,112,Visual cortex,12,1,Eu3,128.0,0.0,223.0
+113,127,V2,113,Visual cortex,12,1,Eu3,195.0,133.0,239.0
+114,126,V1,114,Visual cortex,12,0,Kon,187.0,89.0,255.0
