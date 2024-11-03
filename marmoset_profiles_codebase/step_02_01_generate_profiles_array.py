@@ -2,11 +2,10 @@ import argparse
 import glob
 import logging
 import os
+import re
 
 import numpy as np
 import pandas as pd
-
-from dataset_configuration import DatasetConfiguration
 
 C_LOGGER_NAME = "generate_profiles_array"
 logging.basicConfig(
@@ -25,6 +24,15 @@ def load_profiles(section_path):
     seg_path = glob.glob(section_path + "/*_segmentation.npy")[0]
     profiles_path = glob.glob(section_path + "/*_norm_profiles.npy")[0]
     return np.load(seg_path), np.load(profiles_path)
+
+
+def get_section_list(path):
+    sections_path_list = glob.glob(path + "/[0-9]*")
+    sections_path_list.sort()
+    sections_list = [
+        re.search(r"[0-9]*$", path).group(0) for path in sections_path_list
+    ]
+    return sections_list, sections_path_list
 
 
 class ProfilesInfo:
@@ -61,14 +69,14 @@ class ProfilesInfo:
         if os.path.exists(paths.profiles_csv):
             in_df = pd.read_csv(paths.profiles_csv)
             df.loc[:, "index_in_npy_array"] = (
-                df.index_in_npy_array + in_df.index_in_npy_array.iloc[-1] + 1
+                    df.index_in_npy_array + in_df.index_in_npy_array.iloc[-1] + 1
             )
             df = pd.concat((in_df, df))
         df.to_csv(paths.profiles_csv)
         logger.info("Dataframe with profile info saved to... %s", paths.profiles_csv)
 
 
-def process_all_case(config, paths):
+def process_all_case(paths):
     output_profiles = np.array([])
 
     profiles_dict = ProfilesInfo()
@@ -82,9 +90,9 @@ def process_all_case(config, paths):
     if os.path.exists(case_path) is False:
         raise OSError("Path does not exist", case_path)
 
-    sections = config.sections(case_path)
+    sections2paths = get_section_list(case_path)
 
-    for section, section_path in zip(*sections):
+    for section, section_path in zip(*sections2paths):
         logger.info("Section...%s", section)
 
         seg, profiles = load_profiles(section_path)
@@ -112,16 +120,6 @@ def parse_args():
         description=process_all_case.__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-
-    parser.add_argument(
-        "-c",
-        "--config-fname",
-        required=True,
-        dest="config_fname",
-        type=str,
-        metavar="FILENAME",
-        help="Path to file with configuration",
-    ),
 
     parser.add_argument(
         "-e",
@@ -169,5 +167,4 @@ def parse_args():
 
 if __name__ == "__main__":
     input_options = parse_args()
-    data_settings = DatasetConfiguration(input_options.config_fname)
-    process_all_case(data_settings, input_options)
+    process_all_case(input_options)

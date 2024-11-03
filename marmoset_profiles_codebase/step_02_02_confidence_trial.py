@@ -1,7 +1,6 @@
 import argparse
 import logging
 
-import numpy as np
 import pandas as pd
 
 from dataset_configuration import DatasetConfiguration
@@ -21,9 +20,8 @@ def read_data(paths):
 
     """
     profiles_df = pd.read_csv(paths.profiles_csv)
-    prof_arr = np.load(paths.profiles_npy)
 
-    return profiles_df, prof_arr
+    return profiles_df
 
 
 def confidence_trail(config, paths):
@@ -39,29 +37,18 @@ def confidence_trail(config, paths):
       - .profiles_npy - intensity profiles in npy array
 
     """
-    profiles_df, prof_arr = read_data(paths)
+    profiles_df = read_data(paths)
 
     min_confidence = config("min_confidence_level")
     max_confidence = config("max_confidence_level")
     profiles_df["accept"] = (profiles_df.confidence > min_confidence) & (
-        profiles_df.confidence <= max_confidence
+            profiles_df.confidence <= max_confidence
     )
 
     if config("do_exclude_zero"):
         profiles_df.loc[profiles_df.area_id == 0, "accept"] = False
 
-    profiles_df.to_csv(paths.split_profiles_csv)
-
-    acc_prof_df = profiles_df[profiles_df.accept]
-
-    acc_idx = acc_prof_df.index_in_npy_array
-    prof_arr = prof_arr[acc_idx]
-    acc_prof_df.loc[:, "index_in_npy_array"] = np.arange(acc_prof_df.shape[0])
-    acc_prof_df.loc[:, "npy_path"] = paths.accept_profiles_csv
-
-    acc_prof_df.to_csv(paths.accept_profiles_csv)
-
-    np.save(paths.accept_profiles, prof_arr)
+    profiles_df.to_csv(paths.profiles_csv)
 
 
 def parse_args():
@@ -86,46 +73,6 @@ def parse_args():
         "--profiles-csv",
         required=True,
         dest="profiles_csv",
-        type=str,
-        metavar="FILENAME",
-        help="Path to ",
-    )
-
-    parser.add_argument(
-        "-x",
-        "--profiles-npy",
-        required=True,
-        dest="profiles_npy",
-        type=str,
-        metavar="FILENAME",
-        help="Path to ",
-    )
-
-    parser.add_argument(
-        "-s",
-        "--split-profiles-csv",
-        required=True,
-        dest="split_profiles_csv",
-        type=str,
-        metavar="FILENAME",
-        help="Path to ",
-    )
-
-    parser.add_argument(
-        "-o",
-        "--accept-profiles-csv",
-        required=True,
-        dest="accept_profiles_csv",
-        type=str,
-        metavar="FILENAME",
-        help="Path to ",
-    )
-
-    parser.add_argument(
-        "-u",
-        "--output-accept-profile-npy",
-        required=True,
-        dest="accept_profiles",
         type=str,
         metavar="FILENAME",
         help="Path to ",

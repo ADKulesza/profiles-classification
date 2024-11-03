@@ -5,7 +5,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import scoreatpercentile
 
 from dataset_configuration import DatasetConfiguration
 from plot_methods.plot_formatting import AxesFormatting, AxesFormattingBarPlot
@@ -37,11 +36,11 @@ def make_dir(output_dir, case, suffix=""):
 
 
 def find_axis_step(value):
-    thresholds = np.array([1, 40, 100, 500, 1000, 3000, 5000, 10000, 20000, 50000])
+    thresholds = np.array([1, 40, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000])
 
     _th = (value - thresholds[:-1]) // thresholds[:-1]
     _th = _th[_th > 0]
-    return thresholds[len(_th)]
+    return thresholds[len(_th) - 1]
 
 
 def plot_bar(ax, x, x_labels, all_profiles, accepted_profiles, xlabel, max_bar_in_plot):
@@ -102,7 +101,7 @@ def plot_distribution_per_section(df, case, case_path, max_bar_in_plot):
         logger.info("Profile distrib per section %s/%s", i, n_plots)
         fig, ax = plt.subplots(figsize=C_FIGSIZE)
         # = plot_df.iloc[i*max_bar_in_plot*2:(i+1)*max_bar_in_plot*2]
-        x_labels = x_all_labels[i * max_bar_in_plot : (i + 1) * max_bar_in_plot]
+        x_labels = x_all_labels[i * max_bar_in_plot: (i + 1) * max_bar_in_plot]
 
         _acc_df = acc_df.iloc[acc_df.index.get_level_values("section").isin(x_labels)]
         _rec_df = rec_df.iloc[rec_df.index.get_level_values("section").isin(x_labels)]
@@ -154,7 +153,7 @@ def plot_label_distribution(df, case, case_path, max_bar_in_plot):
     for i in range(n_plots):
         logger.info("Area distrib  %s/%s", i + 1, n_plots)
 
-        x_labels = x_all_labels[i * max_bar_in_plot : (i + 1) * max_bar_in_plot]
+        x_labels = x_all_labels[i * max_bar_in_plot: (i + 1) * max_bar_in_plot]
 
         _acc_df = acc_df.iloc[acc_df.index.get_level_values("area_id").isin(x_labels)]
         _rec_df = rec_df.iloc[rec_df.index.get_level_values("area_id").isin(x_labels)]
@@ -194,52 +193,12 @@ def plot_label_distribution(df, case, case_path, max_bar_in_plot):
         plt.close()
 
 
-def get_hist_plot(df, case_path):
-    plt_prop = PlotProperties()
-    plot_df = df.groupby(["area_id", "accept"]).size()
-
-    acc_df = plot_df.iloc[plot_df.index.get_level_values("accept")]
-    hist_val = acc_df.values
-    val_median = np.median(hist_val)
-    val_q1 = scoreatpercentile(hist_val, 25)
-    val_q3 = scoreatpercentile(hist_val, 75)
-    fig, ax = plt.subplots(figsize=C_FIGSIZE)
-
-    counts, bins, patches = ax.hist(
-        hist_val,
-        bins=60,
-        edgecolor=C_COLORS["accepted"],
-        color=C_COLORS["edge"],
-        linewidth=plt_prop.line_width,
-    )
-
-    ax.axvline(val_q1, color="silver", linewidth=plt_prop.line_width)
-    ax.axvline(val_median, color="gray", linewidth=plt_prop.line_width)
-    ax.axvline(val_q3, color="dimgray", linewidth=plt_prop.line_width)
-
-    x_axis = {"min": 0, "max": math.ceil(bins[-1] / 50000) * 50000, "step": 50000}
-    y_axis = {"min": 0, "max": math.ceil(counts[0] / 10) * 10, "step": 10}
-    axes_formatter = AxesFormatting(ax)
-    axes_formatter.format_axes(x_axis, y_axis)
-
-    axes_formatter = AxesFormatting(ax)
-    axes_formatter.format_axes(x_axis, y_axis)
-
-    ax.set_title(
-        "q1 = {:.0f}, median = {:.0f}, q3 = {:.0f}".format(val_q1, val_median, val_q3),
-        fontproperties=plt_prop.font,
-    )
-
-    plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.15)
-
-    path_fig = os.path.join(case_path, f"area_distribution.png")
-    plt.savefig(path_fig, dpi=plt_prop.dpi)
-    plt.close()
-
-
 def process(config, paths):
     df = pd.read_csv(paths.profiles_csv)
-    for case in config("case_list"):
+
+    case_list = pd.unique(df.case)
+
+    for case in case_list:
         logger.info("Case... %s", case)
         df_case = df[df.case == case]
         plot_distribution_per_section(
@@ -247,8 +206,6 @@ def process(config, paths):
         )
 
         plot_label_distribution(df, case, paths.output, config("max_bar_in_plot"))
-
-    get_hist_plot(df, paths.output)
 
 
 def parse_args():

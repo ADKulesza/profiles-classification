@@ -1,16 +1,9 @@
 {
     "profile_length": 128,
-    "case_list": [
-        "atlas"
-    ],
-    "stack_names": [
-        "average"
-    ],
-    "specific_sections_list": [],
     "do_all_areas": true,
-    "number_of_labels": 116,
+    "number_of_labels": 115,
     "do_exclude_zero": true,
-    "min_confidence_level": 0.55,
+    "min_confidence_level": 0.67,
     "max_confidence_level": 1.0,
     "profile_mean_number": 0,
     "specific_area_id_list": [
@@ -37,5 +30,5 @@
     "patience": 32,
     "learning_rate": 0.01,
     "batch_size": 256,
-    "max_bar_in_plot": 35
+    "max_bar_in_plot": 25
 }

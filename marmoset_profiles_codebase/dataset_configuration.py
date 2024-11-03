@@ -25,14 +25,7 @@ class DatasetConfiguration(object):
     Json file must contain certain fields:
     ----------
     {
-        "profile_length": 300,
-        "case_list": [
-            "atlas"
-        ],
-        "stack_names": [
-            "average"
-        ],
-        "specific_labels_list": [],
+        "profile_length": 128,
         "min_confidence_level": 0.67,
         "max_confidence_level": 1.0,
         "specific_sections_list": [],
@@ -58,11 +51,6 @@ class DatasetConfiguration(object):
     ----------
     profile_length : int
         length of profile in samples
-    case_list : list
-        preprocessing cases
-    stack_names : list
-        prefix of slice stack
-        [!] len(case_list) == len(stack_names)
     specific_labels_list : list
         labels to train the model
         type one number in a LIST to binarize the model
@@ -97,25 +85,3 @@ class DatasetConfiguration(object):
     @property
     def settings_in_dict(self):
         return copy.deepcopy(self._config_dict)
-
-    def sections(self, case_dir):
-        if len(self._config_dict["specific_sections_list"]) == 0:
-
-            sections_path_list = glob.glob(case_dir + "/[0-9]*")
-            sections_path_list.sort()
-            sections_list = [
-                re.search(r"[0-9]*$", path).group(0) for path in sections_path_list
-            ]
-            return sections_list, sections_path_list
-
-        else:
-            sections_list = []
-            sections_path_list = []
-            for section in self._config_dict["specific_sections_list"]:
-                sections_list.append(f"%04.f" % section)
-                path = os.path.join(case_dir, f"%04.f" % section)
-                if os.path.exists(path):
-                    sections_path_list.append(path)
-                else:
-                    logger.warning("Path does not exist... %s", path)
-            return sections_list, sections_path_list

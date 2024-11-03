@@ -31,9 +31,6 @@ STEP_02_CONFIDENCE="067_profiles_arrays"
 PRE_LABELS_TO_IDX="labels.csv"
 STEP_02_ALL_PROFILES='all_profiles_array.npy'
 STEP_02_ALL_PROFILES_CSV='all_profiles.csv'
-STEP_02_SPLIT_PROFILES_CSV='confidence_split_profiles.csv'
-STEP_02_ACC_PROFILES_CSV='accepted_profiles.csv'
-STEP_02_ACC_PROFILES='accepted_profiles_array.npy'
 STEP_02_VISUALIZATION='visualization'
 
 STEP_03_HOLDOUT_DIR='step_03_holdout_split'
