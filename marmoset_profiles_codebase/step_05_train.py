@@ -11,9 +11,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 from cnn_models.flatten_model import flatten_conv_model
 from cnn_models.multi_branch_binary_model import multi_branch_binary_model
 from cnn_models.multi_branch_model import multi_branch_model
-from cnn_models.simple_model_method import simple_model
+from cnn_models.simple_model import simple_model
 from dataset_configuration import DatasetConfiguration
-from step_04_model_visualization import summary_plot
+from step_05_model_visualization import summary_plot
 from step_05_generator_all_vs_all import BatchNormAugmentationSequence
 from step_05_generator_one_vs_all import OneVsAllAugmentationSequence
 

@@ -4,7 +4,7 @@ DO_TRAIN='true'
 
 source header.sh
 
-MODEL_NAME='multi_branch_model'
+MODEL_NAME='simple_model'
 
 
 if [ ${DO_TRAIN} = 'true' ]; then
