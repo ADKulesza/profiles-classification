@@ -4,7 +4,6 @@ DO_HOLDOUT_PREDICT='false'
 DO_HOLDOUT_CONFMAT='false'
 DO_HOLDOUT_TYPES_CONFMAT='false'
 DO_METRICS='false'
-DO_PRED_ACROSS_TYPES='false'
 DO_ERRORS_ACROSS_TYPES='true'
 
 DO_SECTION_EVALUATION='false'
@@ -60,22 +59,15 @@ if [ ${DO_HOLDOUT_CONFMAT} = true ]; then
 
   reformat_labels_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_REFORMAT_LABELS_DIR}
 
-  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/*/
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/
     do
-      for model_set_dir in ${holdout_dir}/*/
+      for model_set_dir in ${holdout_dir}/*_set_*/
         do
           python ${CODEBASE_DIR}/step_06_03_get_cmat.py \
           --validation-csv ${model_set_dir}/"results.csv"\
           --labels-processed ${reformat_labels_dir}/${STEP_04_LABELS_PROCESSED} \
           --output-dir ${model_set_dir}
 
-          mkdir -p ${model_set_dir}/${STEP_06_BINARY_CMAT_DIR}
-
-#          python ${CODEBASE_DIR}/step_06_get_binary_cmat.py \
-#            --confmat ${holdout_dir}/"cmat.npy" \
-#            --label-names ${LABEL_NAMES} \
-#            --labels-processed ${reformat_labels_dir}/${STEP_04_LABELS_PROCESSED} \
-#            --output ${holdout_dir}/${STEP_06_BINARY_CMAT_DIR}
       done
     done
 
@@ -162,25 +154,6 @@ if [ ${DO_SECTION_EVALUATION} = true ]; then
 
 fi
 
-if [ ${DO_PRED_ACROSS_TYPES} = true ]; then
-  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/
-    do
-      for model_set_dir in ${holdout_dir}/*_set_*/
-        do
-          output_dir="${model_set_dir}/${STEP_06_PRED_ACROSS_TYPE}"
-          mkdir -p ${output_dir}
-
-          python ${CODEBASE_DIR}/step_06_09_get_pred_across_area_type.py \
-          --validation-csv ${model_set_dir}/"results.csv"\
-          --pred-y ${model_set_dir}/"pred_y.npy"\
-          --output-dir ${output_dir}
-      done
-
-  done
-
-
-fi
-
 
 if [ ${DO_ERRORS_ACROSS_TYPES} = true ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/
@@ -190,12 +163,17 @@ if [ ${DO_ERRORS_ACROSS_TYPES} = true ]; then
           output_dir="${model_set_dir}/${STEP_06_ERRORS_ACROSS_TYPE}"
           mkdir -p ${output_dir}
 
-          python ${CODEBASE_DIR}/step_06_10_errors_across_type.py \
+#          python ${CODEBASE_DIR}/step_06_10_errors_across_type.py \
+#          --validation-csv ${model_set_dir}/"results.csv"\
+#          --output-dir ${output_dir}
+
+          python ${CODEBASE_DIR}/step_06_09_errors_across_type.py \
           --validation-csv ${model_set_dir}/"results.csv"\
           --cmat ${model_set_dir}/"cmat.npy"\
           --output-dir ${output_dir}
+#
       done
-
+  break
   done
 
 fi

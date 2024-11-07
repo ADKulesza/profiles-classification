@@ -98,7 +98,7 @@ def process(config, paths):
         shuffle_heatmaps = shuffle_heatmaps.take(random_idx, axis=0)
 
         for _area, _area_idx in area_profiles.items():
-            _heatmaps = heatmaps[_area_idx, :]
+            _heatmaps = shuffle_heatmaps[_area_idx, :]
             _heatmaps = np.reshape(_heatmaps, (-1, N_BLOCKS), order="F")
             _heatmap_bootstrap = bootstrap_dict[_area][i]
 
@@ -118,7 +118,7 @@ def process(config, paths):
         strap_heatmap_stat = np.zeros((5, N_BLOCKS))
         for i_stat in range(5):
             stat_diff = np.abs(_heatmap_straps[:, i_stat] - _real_heatmap_area[i_stat])
-            stat_count = np.sum(stat_diff > _real_heatmap_area[i_stat], axis=0) / K_BOOTSTRAP
+            # stat_count = np.sum(stat_diff > _real_heatmap_area[i_stat], axis=0) / K_BOOTSTRAP
             # out_df_dict[COLUMNS_DF[i_stat]].append(stat_count)
             strap_heatmap_stat[i_stat] = stat_count
 

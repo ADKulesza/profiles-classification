@@ -43,20 +43,15 @@ STEP_03_SECTIONS_HO_PROFILES_CSV='sections_holdout_profiles.csv'
 # ALL VS ALL
 STEP_04_OUTPUT_DIR="step_04_processed_profiles_all_vs_all"
 
-STEP_04_PICK_PROFILES_DIR='output_01_areas_pick'
 STEP_04_LABELS_PROCESSED='labels_processed.csv'
-STEP_04_PICK_PROFILES='profiles.npy'
+STEP_04_PICK_PROFILES='pick_profiles.npy'
 STEP_04_PICK_PROFILES_CSV='profiles_info.csv'
-STEP_04_LABELS_WEIGHTS='label_weights.csv'
 
-STEP_04_REFORMAT_LABELS_DIR='output_02_reformat_labels'
 STEP_04_RAW_LABELS='raw_segmentation.npy'
 STEP_04_LABELS_DATASET='one_hot_segmentation.npy'
-STEP_04_REPORT_FNAME='report.json'
 
-STEP_04_VISUALIZATION='output_03_visualization'
+STEP_04_VISUALIZATION='output_04_visualization'
 
-STEP_04_SPLIT_DATASETS_DIR='output_04_split_datasets'
 STEP_04_SPLIT_DATASET="split_datasets_processed.csv"
 
 STEP_04_NORM_DIR='output_05_norm_profiles'

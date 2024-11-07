@@ -155,7 +155,7 @@ if [ ${CAM_VISUALIZATION} = 'true' ]; then
       python ${CODEBASE_DIR}/step_08_CAM_medians.py --config-fname ${CONFIG_FNAME} \
       --label-names ${LABEL_NAMES}\
       --heatmaps ${heatmap} \
-      --output-csv ${df_path} \
+      --validation-csv ${df_path} \
       --output-dir ${plots_dir}
     done
   done

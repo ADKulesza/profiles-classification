@@ -75,6 +75,7 @@ def process(config, paths):
     check_data(train_profiles, train_profiles_df, logger)
 
     train_profiles_df.loc[:, "npy_path"] = paths.to_train_npy
+
     train_profiles_df = train_profiles_df.loc[:, ~train_profiles_df.columns.str.contains('^Unnamed')]
 
     # ---
@@ -189,16 +190,6 @@ def parse_args():
         "--output-holdout-sections-profiles-csv",
         required=True,
         dest="sections_csv",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output",
-    )
-
-    parser.add_argument(
-        "-o",
-        "--output-csv",
-        required=True,
-        dest="output_csv",
         type=str,
         metavar="FILENAME",
         help="Path to output",

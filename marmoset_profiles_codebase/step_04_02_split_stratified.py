@@ -45,7 +45,6 @@ def process(config, paths):
     x_profiles, y_labels, df = read_data(paths)
 
     new_df = df.copy()
-    new_df = new_df.loc[:, ~new_df.columns.str.contains("^Unnamed")]
 
     ho_folds = [col for col in df.columns if col.startswith("holdout")]
     n_sets = len(ho_folds)
@@ -57,7 +56,7 @@ def process(config, paths):
 
         _x_idx = _df.index_in_npy_array.array
         _x = x_profiles[_x_idx]
-        _y = _df.idx_in_model
+        _y = _df.label
 
         # split dataset
         for i_v, (train_idx, valid_idx) in enumerate(splitter.split(_x, _y)):
@@ -73,6 +72,8 @@ def process(config, paths):
             new_df.loc[df[dset], f"set_{i}{i_v}"] = "test"
             new_df.loc[df_valid, f"set_{i}{i_v}"] = "valid"
     logger.info("Cross shuffle-shuffle... Done!")
+
+    new_df = new_df.loc[:, ~new_df.columns.str.contains("^Unnamed")]
 
     logger.info("Saving data...")
     new_df.to_csv(paths.split_profiles_csv)

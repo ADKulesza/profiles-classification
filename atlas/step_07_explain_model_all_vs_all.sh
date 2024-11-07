@@ -2,8 +2,8 @@
 
 source header.sh
 
-CAM_EXP='true'
-DO_BOOTSTRAP='false'
+CAM_EXP='false'
+DO_BOOTSTRAP='true'
 
 #output_picked_dir=${OUTPUT_DIR}/${OUTPUT_PICKED_PROFILES_DIR}
 #
@@ -39,15 +39,17 @@ if [ ${CAM_EXP} = true ]; then
 fi
 
 if [ ${DO_BOOTSTRAP} = true ]; then
-  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
-    for model_set_dir in ${holdout_dir}/*_set_*/
-        do
-            heatmap_dir="${model_set_dir}/${STEP_07_HEATMAPS}"
+#  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+#    for model_set_dir in ${holdout_dir}/*_set_*/
+#        do
+#            heatmap_dir="${model_set_dir}/${STEP_07_HEATMAPS}"
+            model_set_dir="step_06_evaluation_all_vs_all/holdout_2/multi_branch_model_set_20"
+            heatmap_dir="step_06_evaluation_all_vs_all/holdout_2/multi_branch_model_set_20/${STEP_07_HEATMAPS}"
 
             python ${CODEBASE_DIR}/step_07_heatmaps_bootstrap.py --config-fname "${CONFIG_FNAME}"\
               --profiles-csv ${model_set_dir}/"results.csv" \
               --heatmap "${heatmap_dir}/heatmap.npy" \
               --output-dir "${heatmap_dir}"
-        done
-    done
+#        done
+#    done
 fi

@@ -138,20 +138,20 @@ def axes_formatting(ax, x_axis):
         label.set_fontsize(C_DEFAULT_FONT_SIZE)
 
 
-def get_stat(x_arr):
-    median = np.median(x_arr, axis=0)
-    q1 = np.percentile(x_arr, 25, axis=0)
-    q3 = np.percentile(x_arr, 75, axis=0)
-    # iqr = q3 - q1
-
-    stat = np.zeros((3, x_arr.shape[1]))
-    # stat[0] = q1 - 1.5 * iqr
-    stat[0] = q1
-    stat[1] = median
-    stat[2] = q3
-    # stat[4] = q3 + 1.5 * iqr
-
-    return stat
+# def get_stat(x_arr):
+#     median = np.median(x_arr, axis=0)
+#     q1 = np.percentile(x_arr, 25, axis=0)
+#     q3 = np.percentile(x_arr, 75, axis=0)
+#     # iqr = q3 - q1
+#
+#     stat = np.zeros((3, x_arr.shape[1]))
+#     # stat[0] = q1 - 1.5 * iqr
+#     stat[0] = q1
+#     stat[1] = median
+#     stat[2] = q3
+#     # stat[4] = q3 + 1.5 * iqr
+#
+#     return stat
 
 
 def get_plot(stat, output_path, area_name):
@@ -163,15 +163,15 @@ def get_plot(stat, output_path, area_name):
 
     ax.fill_between(
         domain,
-        stat[0],
-        stat[2],
+        stat[1],
+        stat[3],
         facecolor="#eeeeee",
         edgecolor=None,
         linewidth=None,
         label="IQR",
     )
 
-    for series in [stat[0], stat[2]]:
+    for series in [stat[1], stat[3]]:
         ax.plot(
             domain,
             series,
@@ -182,7 +182,7 @@ def get_plot(stat, output_path, area_name):
 
     ax.plot(
         domain,
-        stat[1],
+        stat[2],
         linestyle="-",
         linewidth=C_PROFILE_MEDIAN_LW,
         color=C_PROFILE_MEDIAN_LINECOLOR,
@@ -211,43 +211,46 @@ def get_plot(stat, output_path, area_name):
     prop = dict(left=0.18, right=0.95, top=0.92, bottom=0.18)
 
     plt.subplots_adjust(**prop)
+
     plt.savefig(output_path, dpi=C_DPI)
-    plt.savefig(output_path.replace(".png", ".svg"), dpi=C_DPI)
+    # plt.savefig(output_path.replace(".png", ".svg"), dpi=C_DPI)
     plt.close()
 
 
-def process(paths):
-    profiles_df = pd.read_csv(paths.output_csv)
+def read_data(paths):
+    logger.info("Loading data...")
+
+    # Loading .csv file with information about profiles
+    profiles_df = pd.read_csv(paths.validation_csv)
+    logger.info("%s", paths.validation_csv)
 
     heatmaps = np.load(paths.heatmaps)
-    logger.info(heatmaps)
-    area_id_list = np.array(profiles_df.area_id.unique())
+    logger.info("%s", paths.validation_csv)
+
+    logger.info("Loading data... Done!")
+
+    return profiles_df, heatmaps
+
+
+def process(paths):
+    profiles_df, heatmaps = read_data(paths)
+
+    area_list = np.array(profiles_df.area.unique())
 
     n_blocks = 32
 
-    for _area_id in area_id_list:
+    for _area in area_list:
+        logger.info("Area: %s", _area)
+        _area_path = os.path.join(paths.output, _area)
 
-        _df = profiles_df[profiles_df.area_id == _area_id]
-        array_idx = np.array(_df.index_in_npy_array)
-        if array_idx.shape[0] == 0:
-            continue
-        _heatmaps = np.zeros((array_idx.shape[0], 128))
-        _heatmaps[:] = heatmaps[array_idx, :]
+        real_path = os.path.join(_area_path, "real_heatmap.npy")
+        real_heatmap = np.load(real_path)
+        logger.info("AAAA %s", real_heatmap.shape)
 
-        # _heatmaps = np.delete(_heatmaps, _heatmaps == 0, axis=0)
-        corrupted_idx = np.where(~_heatmaps.any(axis=1))[0]
-        if corrupted_idx.shape[0] > 0:
-            _heatmaps = np.delete(_heatmaps, corrupted_idx, axis=0)
-        if _heatmaps.shape[0] == 0:
-            continue
-        _heatmaps = np.reshape(_heatmaps, (-1, n_blocks), order="F")
-        logger.info("dupa: %s", _heatmaps.shape)
-        stat_hm = get_stat(_heatmaps)
-        area_name = _df.area.values[0]
-        logger.info("%s...", area_name)
 
-        fname_hm = os.path.join(paths.output_dir, area_name + ".png")
-        get_plot(stat_hm, fname_hm, area_name)
+        fname_hm = os.path.join(_area_path, _area + "_median_heatmap.png")
+        logger.info("OUTPUT: %s", fname_hm)
+        get_plot(real_heatmap, fname_hm, _area)
 
 
 def parse_args():
@@ -279,9 +282,9 @@ def parse_args():
 
     parser.add_argument(
         "-o",
-        "--output-csv",
+        "--validation-csv",
         required=True,
-        dest="output_csv",
+        dest="validation_csv",
         type=str,
         metavar="FILENAME",
         help="Path to output csv file with",
@@ -301,7 +304,7 @@ def parse_args():
         "-d",
         "--output-dir",
         required=True,
-        dest="output_dir",
+        dest="output",
         type=str,
         metavar="FILENAME",
         help="Path to ",
