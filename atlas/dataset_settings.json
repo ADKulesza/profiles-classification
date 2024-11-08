@@ -18,12 +18,12 @@
     "norm_by_mean_std": true,
     "random_seed": 16,
     "add_noise": true,
-    "noise_ratio": 0.1,
+    "noise_ratio": 0.05,
     "add_artifacts": true,
     "artifacts_ratio": 0.005,
-    "number_of_epochs": 512,
-    "patience": 32,
-    "learning_rate": 0.01,
-    "batch_size": 256,
+    "number_of_epochs": 1024,
+    "patience": 128,
+    "learning_rate": 0.001,
+    "batch_size": 512,
     "max_bar_in_plot": 25
 }

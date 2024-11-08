@@ -82,6 +82,8 @@ def train_model(
         logger.info("Dataset... %s", dset)
 
         filename = os.path.join(paths.output, f"{model_name}_{dset}")
+        logger.info("PATH TO TRAINING MODEL: %s", filename)
+
         if os.path.exists(filename):
             logger.warning("Model... %s EXIST!", filename)
             continue
@@ -91,9 +93,9 @@ def train_model(
 
         logger.info("Model... %s", filename)
         if paths.one_vs_all:
-            fold_df = df[["idx_in_model", "index_in_npy_array", "prob", dset]]
+            fold_df = df[["label", "index_in_npy_array", "prob", dset]]
         else:
-            fold_df = df[["idx_in_model", "index_in_npy_array", dset]]
+            fold_df = df[["label", "index_in_npy_array", dset]]
         train_df = fold_df[fold_df[dset] == "train"]
         train_df["new_index"] = np.arange(train_df.shape[0], dtype=int)
         valid_df = fold_df[fold_df[dset] == "valid"]

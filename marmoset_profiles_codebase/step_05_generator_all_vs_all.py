@@ -77,10 +77,10 @@ class BatchNormAugmentationSequence(Sequence):
         self.batch_size = batch_size
 
         self.df = df
-        self.class_list = pd.unique(df.idx_in_model)
+        self.class_list = pd.unique(df.label)
         self._df_dict = {}
         for _class in self.class_list:
-            _df = self.df[self.df.idx_in_model == _class]
+            _df = self.df[self.df.label == _class]
             self._df_dict[_class] = np.array(_df.new_index.astype(int), dtype=np.uint)
 
         self._add_noise = add_noise
