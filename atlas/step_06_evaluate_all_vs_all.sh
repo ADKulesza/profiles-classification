@@ -1,17 +1,16 @@
 #!/bin/bash -xe
 
-DO_HOLDOUT_PREDICT='false'
+DO_HOLDOUT_PREDICT='true'
 DO_HOLDOUT_CONFMAT='false'
 DO_HOLDOUT_TYPES_CONFMAT='false'
 DO_METRICS='false'
-DO_ERRORS_ACROSS_TYPES='true'
+DO_ERRORS_ACROSS_TYPES='false'
 
 DO_SECTION_EVALUATION='false'
 
-source header.sh
+export ROCM_PATH=/opt/rocm
 
-output_norm_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_NORM_DIR}
-output_split_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_SPLIT_DATASETS_DIR}
+source header.sh
 
 
 #----------------------------------------------------------
@@ -28,10 +27,8 @@ if [ ${DO_HOLDOUT_PREDICT} = true ]; then
 
 #   --split-profiles-csv step_04_.../output_04_split_datasets/split_datasets_processed.csv
   python "${CODEBASE_DIR}"/step_06_01_get_holdout_datasets.py \
-    --profiles ${output_norm_dir}/${STEP_04_NORM_PROFILES} \
-    --split-profiles-csv ${output_split_dir}/${STEP_04_SPLIT_DATASET} \
-    --label-names ${LABEL_NAMES} \
-    --area-order "areas_order.json"\
+    --profiles ${STEP_04_OUTPUT_DIR}/${STEP_04_NORM_PROFILES} \
+    --split-profiles-csv ${STEP_04_OUTPUT_DIR}/${STEP_04_SPLIT_DATASET} \
     --output-dir ${STEP_06_EVALUATION_ALL_VS_ALL} \
     --output-models-order ${STEP_06_EVALUATION_ALL_VS_ALL}/${STEP_06_MODELS_ORDER}
 

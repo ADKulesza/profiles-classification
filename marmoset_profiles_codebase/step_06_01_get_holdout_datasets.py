@@ -31,15 +31,10 @@ def read_data(paths):
 
     labels_id = profiles_df.area_id.array
 
-    label_names = pd.read_csv(paths.label_names)
-    logger.info("%s", paths.label_names)
-
-    area_order = read_json(paths.area_order)
-    logger.info("%s", paths.area_order)
 
     logger.info("Loading data... Done!")
 
-    return profiles, profiles_df, labels_id, label_names, area_order
+    return profiles, profiles_df, labels_id
 
 
 class CreateHoldoutSets:
@@ -50,16 +45,9 @@ class CreateHoldoutSets:
         (
             self._profiles,
             self._profiles_df,
-            self._labels,
-            self._label_names,
-            self._area_order,
+            self._labels
         ) = read_data(paths)
 
-        sort_map = get_sort_map(self._area_order)
-
-        self._label_names["area_order"] = self._label_names["area"].map(
-            sort_map["index"]
-        )
 
     def run(self):
 
@@ -85,8 +73,9 @@ class CreateHoldoutSets:
 
             _ho_df = _ho_df.drop(_drop_col_list, axis=1)
 
+            _ho_num = holdout_name[8:]
             holdout_set_col_list = [
-                col for col in _ho_df.columns if col.startswith("set_")
+                col for col in _ho_df.columns if col.startswith(f"set_{_ho_num}")
             ]
 
             holdout_dict[holdout_name] = holdout_dict.get(holdout_name, [])
@@ -114,13 +103,6 @@ class CreateHoldoutSets:
             _ho_df.loc[:, "npy_path"] = x_path
 
             _ho_df = _ho_df.loc[:, ~_ho_df.columns.str.contains("^Unnamed")]
-
-            _ho_df = pd.merge(_ho_df, self._label_names, how="left", on="area_id")
-
-            _ho_df["region"] = np.nan
-            area_regions = self._area_order[2]
-            for region, area_list in area_regions.items():
-                _ho_df.loc[_ho_df.area.isin(area_list), "region"] = region
 
             _ho_df_path = os.path.join(dataset_path, "holdout_info.csv")
             logger.info("DataFrame: %s", _ho_df_path)
@@ -160,26 +142,6 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
-    )
-
-    parser.add_argument(
-        "-n",
-        "--label-names",
-        required=True,
-        dest="label_names",
-        type=str,
-        metavar="FILENAME",
-        help="Path to csv file with",
-    )
-
-    parser.add_argument(
-        "-r",
-        "--area-order",
-        required=True,
-        dest="area_order",
-        type=str,
-        metavar="FILENAME",
-        help="Path to file with",
     )
 
     parser.add_argument(

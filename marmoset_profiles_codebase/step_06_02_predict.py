@@ -7,7 +7,7 @@ import pandas as pd
 from tensorflow import compat
 from tensorflow.keras.models import load_model
 
-from cnn_models.multi_branch_model import multi_branch_model
+from cnn_models.simple_model import simple_model
 from cnn_models.multi_branch_binary_model import multi_branch_binary_model
 from read_json import read_json
 
@@ -85,13 +85,13 @@ def process(paths):
     gb = profiles_df.groupby("area")
     profiles_df["pred_area"] = np.nan
     for _area, _df in gb:
-        _pred_areas = pd.unique(_df.idx_in_model)
+        _pred_areas = pd.unique(_df.label)
         profiles_df.loc[profiles_df.pred_y.isin(_pred_areas), "pred_area"] = _area
 
     gb = profiles_df.groupby("region")
     profiles_df["pred_region"] = np.nan
     for _reg, _df in gb:
-        _pred_reg = pd.unique(_df.idx_in_model)
+        _pred_reg = pd.unique(_df.label)
         profiles_df.loc[profiles_df.pred_y.isin(_pred_reg), "pred_region"] = _reg
 
     df_path = os.path.join(output_path, "results.csv")

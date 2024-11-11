@@ -8,7 +8,8 @@ from tensorflow.keras.models import load_model
 
 from dataset_configuration import DatasetConfiguration
 
-from cnn_models.multi_branch_model import multi_branch_model
+from cnn_models.simple_model import simple_model
+# from cnn_models.multi_branch_model import multi_branch_model
 from cnn_models.multi_branch_binary_model import multi_branch_binary_model
 
 C_LOGGER_NAME = "explanation"
@@ -103,8 +104,8 @@ def process(config, paths):
 
     logger.info("%s", model.summary())
 
-    layer_index = 32
-    logger.info("Last conv layer: %s", model.layers[32].name)
+    layer_index = 6
+    logger.info("Last conv layer: %s", model.layers[layer_index].name)
 
     heatmaps_output = np.zeros(x_test.shape[:-1])
     n_profiles = x_test.shape[0]

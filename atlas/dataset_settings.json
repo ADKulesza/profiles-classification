@@ -18,7 +18,7 @@
     "norm_by_mean_std": true,
     "random_seed": 16,
     "add_noise": true,
-    "noise_ratio": 0.05,
+    "noise_ratio": 0.1,
     "add_artifacts": true,
     "artifacts_ratio": 0.005,
     "number_of_epochs": 1024,

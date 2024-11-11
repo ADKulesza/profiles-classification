@@ -2,6 +2,8 @@
 
 DO_TRAIN='true'
 
+export ROCM_PATH=/opt/rocm
+
 source header.sh
 
 MODEL_NAME='simple_model'
@@ -13,7 +15,6 @@ if [ ${DO_TRAIN} = 'true' ]; then
 #  [ -d ${STEP_05_MODELS} ] && cp -r ${STEP_05_MODELS} ${STEP_05_MODELS}_`date +"%Y-%m-%d_%H_%M"`_backup
 #  [ -d ${STEP_04_OUTPUT_DIR}  ] && cp -r ${STEP_04_OUTPUT_DIR} ${STEP_05_MODELS}_`date +"%Y-%m-%d_%H_%M"`_backup/${STEP_04_OUTPUT_DIR}
 
-  rm -rf ${STEP_05_MODELS}
   mkdir -p ${STEP_05_MODELS}
   python3 ${CODEBASE_DIR}/step_05_train.py --config-fname ${CONFIG_FNAME} \
     --model-name ${MODEL_NAME} \

@@ -2,17 +2,12 @@
 
 source header.sh
 
-CAM_EXP='false'
-DO_BOOTSTRAP='true'
+export ROCM_PATH=/opt/rocm
 
-#output_picked_dir=${OUTPUT_DIR}/${OUTPUT_PICKED_PROFILES_DIR}
-#
-#output_norm_dir=${OUTPUT_DIR}/${OUTPUT_NORM_DATASETS_DIR}
-#output_hold_out=${OUTPUT_DIR}/${OUTPUT_EVALUATION}/${OUTPUT_EVALUATION_NO_DATE}/${OUTPUT_EVALUATION_HOLD_OUT}
+CAM_EXP='true'
+DO_BOOTSTRAP='false'
 
-output_picked_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_PICK_PROFILES_DIR}
 
-output_norm_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_NORM_DIR}
 
 if [ ${CAM_EXP} = true ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
