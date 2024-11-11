@@ -35,7 +35,7 @@ def func(x, a):
     return a * x
 
 
-def metrics_plot(xdata, ydata, metric, output_dir):
+def metrics_plot(xdata, ydata, metric, output_dir, do_svg=False):
     plt_prop = PlotProperties()
     fig, ax = plt.subplots(figsize=plt_prop.cm2inch(C_FIGSIZE))
 
@@ -154,6 +154,15 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="do_svg",
+        help="Do svg plot?",
     )
 
     arguments = parser.parse_args()

@@ -38,12 +38,9 @@ def read_data(paths):
     profiles_df = pd.read_csv(paths.validation_csv)
     logger.info("%s", paths.validation_csv)
 
-    labels_processed = pd.read_csv(paths.labels_processed)
-    logger.info("%s", paths.labels_processed)
-
     logger.info("Loading data... Done!")
 
-    return profiles_df, labels_processed
+    return profiles_df
 
 
 def check_all_areas(df, areas_df):
@@ -52,22 +49,22 @@ def check_all_areas(df, areas_df):
         return []
     else:
         logger.info("Missing areas: %s", diif_col)
-        miss_idx = areas_df[areas_df.area_id.isin(diif_col)].idx_in_model.values
+        miss_idx = areas_df[areas_df.area_id.isin(diif_col)].label.values
         logger.info("Missing idx: %s", miss_idx)
         return miss_idx
 
 
 def process(paths):
-    df, labels_processed = read_data(paths)
+    df = read_data(paths)
 
     df.dropna(inplace=True)
-    y_real = np.array(df.idx_in_model)
+    y_real = np.array(df.label)
 
-    req_order = pd.unique(df.area_order)
+    req_order = pd.unique(df.label)
 
     y_pred = np.array(df["pred_y"])
 
-    order_in_df = pd.unique(df.idx_in_model)
+    order_in_df = pd.unique(df.label)
     labels = [
         x for _, x in sorted(zip(req_order, order_in_df), key=lambda pair: pair[0])
     ]
@@ -85,12 +82,8 @@ def process(paths):
     if paths.binary:
         pass
     else:
-        if confmat.shape[0] != 116:
-            miss_idx = check_all_areas(df, labels_processed)
-            for _idx in miss_idx:
-                logger.info("Insert vectors of 0: %s", _idx)
-                confmat = np.insert(confmat, _idx, np.zeros(confmat.shape[1]), axis=0)
-                confmat = np.insert(confmat, _idx, np.zeros(confmat.shape[0]), axis=1)
+        if confmat.shape[0] != 115:
+            logger.error("Conusion matrix shape invalid!!!")
 
     cmat_path = os.path.join(paths.output, f"cmat.npy")
     np.save(cmat_path, confmat)
@@ -109,8 +102,8 @@ def process(paths):
         logger.info("Cmat for region: %s", region)
         _reg_df = df[df.region == region]
 
-        req_reg_order = pd.unique(_reg_df.area_order)
-        order_in_reg_df = pd.unique(_reg_df.idx_in_model)
+        req_reg_order = pd.unique(_reg_df.label)
+        order_in_reg_df = pd.unique(_reg_df.label)
         reg_labels = [
             x
             for _, x in sorted(
@@ -151,16 +144,6 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
-    )
-
-    parser.add_argument(
-        "-l",
-        "--labels-processed",
-        required=True,
-        dest="labels_processed",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output csv file with ",
     )
 
     parser.add_argument(

@@ -40,7 +40,7 @@ FLIER_PROPS = dict(marker='o', markeredgecolor='none',
 C_LOGGER_NAME = "metrics_vs"
 
 
-def confidence_boxplot(data, metric, output_dir):
+def confidence_boxplot(data, metric, output_dir, do_svg=False):
     plt_prop = PlotProperties()
     fig, ax = plt.subplots(figsize=plt_prop.cm2inch(C_FIGSIZE))
 
@@ -66,7 +66,9 @@ def confidence_boxplot(data, metric, output_dir):
     plt.subplots_adjust(**prop)
     #
     plt.savefig(os.path.join(output_dir, f"{metric}_vs_type.png"), dpi=C_DPI)
-    # plt.savefig(os.path.join(output_dir, f"{metric}_vs_type.svg"), dpi=C_DPI)
+
+    if do_svg:
+        plt.savefig(os.path.join(output_dir, f"{metric}_vs_type.svg"), dpi=C_DPI)
 
 
 def read_data(paths):
@@ -96,7 +98,8 @@ def process(paths):
 
     boxplot_data = [confidence_values[type_values == i] for i in range(6)]
 
-    confidence_boxplot(boxplot_data, "all_pred_confidence", paths.output_dir)
+    confidence_boxplot(boxplot_data, "all_pred_confidence",
+                       paths.output_dir, paths.do_svg)
 
 
 def parse_args():
@@ -134,6 +137,15 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="do_svg",
+        help="Do svg plot?",
     )
 
     arguments = parser.parse_args()

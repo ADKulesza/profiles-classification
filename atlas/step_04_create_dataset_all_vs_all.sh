@@ -1,8 +1,8 @@
 #!/bin/bash -xe
 
-DO_CREATE_DATASETS='false'
+DO_CREATE_DATASETS='true'
 DO_VISUALIZATION='false'
-DO_SPLIT_DATASETS='false'
+DO_SPLIT_DATASETS='true'
 DO_NORMALIZATION='true'
 
 source header.sh

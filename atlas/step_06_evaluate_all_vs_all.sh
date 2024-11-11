@@ -1,9 +1,9 @@
 #!/bin/bash -xe
 
-DO_HOLDOUT_PREDICT='true'
-DO_HOLDOUT_CONFMAT='false'
+DO_HOLDOUT_PREDICT='false'
+DO_HOLDOUT_CONFMAT='true'
 DO_HOLDOUT_TYPES_CONFMAT='false'
-DO_METRICS='false'
+DO_METRICS='true'
 DO_ERRORS_ACROSS_TYPES='false'
 
 DO_SECTION_EVALUATION='false'
@@ -62,7 +62,6 @@ if [ ${DO_HOLDOUT_CONFMAT} = true ]; then
         do
           python ${CODEBASE_DIR}/step_06_03_get_cmat.py \
           --validation-csv ${model_set_dir}/"results.csv"\
-          --labels-processed ${reformat_labels_dir}/${STEP_04_LABELS_PROCESSED} \
           --output-dir ${model_set_dir}
 
       done

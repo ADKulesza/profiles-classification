@@ -53,7 +53,9 @@ def read_data(paths):
     return confmat_dict, label_names
 
 
-def plot_confmat(confmat, matrix_len, plot_path, xy_labels, plt_prop, x_cmat=False):
+def plot_confmat(confmat, matrix_len,
+                 plot_path, xy_labels, plt_prop,
+                 x_cmat=False, do_svg=False):
     logger.info("Plotting... ")
     if x_cmat:
         fig, ax = plt.subplots(figsize=plt_prop.cm2inch(C_FIGSIZE_X))
@@ -83,7 +85,8 @@ def plot_confmat(confmat, matrix_len, plot_path, xy_labels, plt_prop, x_cmat=Fal
     plt.subplots_adjust(**prop)
 
     plt.savefig(plot_path + ".png", dpi=300)
-    plt.savefig(plot_path + ".svg", dpi=300)
+    if do_svg:
+        plt.savefig(plot_path + ".svg", dpi=300)
 
     logger.info("Plotting... Done! Results saved to: %s", plot_path)
 
@@ -123,7 +126,8 @@ def process(paths):
         plot_fname,
         AREAS_TYPES,
         plt_prop,
-        x_cmat=True
+        x_cmat=True,
+        paths.do_svg
     )
 
 
@@ -162,6 +166,15 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to "
+    )
+
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="do_svg",
+        help="Do svg plot?",
     )
 
     arguments = parser.parse_args()

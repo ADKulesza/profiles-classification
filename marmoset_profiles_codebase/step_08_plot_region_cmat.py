@@ -142,6 +142,15 @@ def parse_args():
         help="Path to "
     )
 
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="binary",
+        help="Do svg plot?",
+    )
+
     arguments = parser.parse_args()
 
     return arguments

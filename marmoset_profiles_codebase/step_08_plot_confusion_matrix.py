@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 from plot_methods.plot_formatting import AxesFormattingConfusionMatrix
 from plot_methods.plot_logger import get_logger
 from plot_methods.plot_properties import PlotProperties
@@ -26,7 +25,7 @@ def read_data(paths):
     return confmat, area_order
 
 
-def plot_confmat(confmat, plot_path, xy_labels, figsize, show_values, plt_prop):
+def plot_confmat(confmat, plot_path, xy_labels, figsize, show_values, plt_prop, do_svg=False):
     logger.info("Plotting... ")
     xy = {"min": 0, "max": xy_labels.shape[0], "step": 1}
     fig, ax = plt.subplots(figsize=plt_prop.cm2inch((figsize, figsize)))
@@ -54,14 +53,17 @@ def plot_confmat(confmat, plot_path, xy_labels, figsize, show_values, plt_prop):
     plt.subplots_adjust(**prop)
 
     plt.savefig(plot_path + ".png", dpi=300)
-    plt.savefig(plot_path + ".svg", dpi=300)
 
-    # dir_path, fig_pref = os.path.split(plot_path)
+    if do_svg:
+        plt.savefig(plot_path + ".svg", dpi=300)
+
+        # dir_path, fig_pref = os.path.split(plot_path)
+
+        # logger.info("Fixing .svg files in: %s", dir_path)
+        # # fix_svg(dir_path)
+        # logger.info("Fixing... Done!")
+
     logger.info("Plotting... Done! Results saved to: %s", plot_path)
-
-    # logger.info("Fixing .svg files in: %s", dir_path)
-    # # fix_svg(dir_path)
-    # logger.info("Fixing... Done!")
 
 
 def process(paths):
@@ -79,6 +81,7 @@ def process(paths):
         paths.figsize,
         paths.show_values,
         plt_prop,
+        paths.do_svg
     )
 
 
@@ -127,6 +130,15 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="do_svg",
+        help="Do svg plot?",
     )
     #
     parser.add_argument("--show-values", action="store_true", dest="show_values")

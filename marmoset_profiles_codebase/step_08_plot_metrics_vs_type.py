@@ -35,7 +35,7 @@ def func(x, a):
     return a * x
 
 
-def metrics_plot(xdata, ydata, metric, output_dir):
+def metrics_plot(xdata, ydata, metric, output_dir, do_svg=False):
     plt_prop = PlotProperties()
     fig, ax = plt.subplots(figsize=plt_prop.cm2inch(C_FIGSIZE))
 
@@ -92,7 +92,8 @@ def metrics_plot(xdata, ydata, metric, output_dir):
     # plt.subplots_adjust(**prop)
     #
     plt.savefig(os.path.join(output_dir, f"{metric}_vs_type.png"), dpi=C_DPI)
-    plt.savefig(os.path.join(output_dir, f"{metric}_vs_type.svg"), dpi=C_DPI)
+    if do_svg:
+        plt.savefig(os.path.join(output_dir, f"{metric}_vs_type.svg"), dpi=C_DPI)
 
 
 def read_data(paths):
@@ -121,7 +122,7 @@ def process(paths):
 
         type_values = metrics_df["type_id"].array
 
-        metrics_plot(type_values, metric_values, metric, paths.output_dir)
+        metrics_plot(type_values, metric_values, metric, paths.output_dir, paths.do_svg)
 
 
 def parse_args():
@@ -159,6 +160,15 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="do_svg",
+        help="Do svg plot?",
     )
 
     arguments = parser.parse_args()

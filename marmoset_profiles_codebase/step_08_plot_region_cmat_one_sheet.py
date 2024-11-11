@@ -40,7 +40,7 @@ def read_data(paths):
     return confmat_dict, area_order
 
 
-def plot_confmat(confmat_dict, plot_path, regions, plt_prop):
+def plot_confmat(confmat_dict, plot_path, regions, plt_prop, do_svg=False):
     logger.info("Plotting... ")
 
     fig, axs = plt.subplots(7, 2, figsize=plt_prop.cm2inch((16.8, 67.2)))
@@ -72,12 +72,11 @@ def plot_confmat(confmat_dict, plot_path, regions, plt_prop):
 
     confmat = confmat_dict["regionxregion_cmat"]
 
-
     xy = {"min": 0, "max": len(regions[_reg]), "step": 1}
     axs[6, 1].matshow(np.log(confmat + 1), cmap="Oranges", alpha=0.6)
     axes_formatter = AxesFormattingRegConfusionMatrix(axs[6, 1])
     regions_list = [_key[:5] for _key in regions.keys()]
-    axes_formatter.format_axes(xy, xy,  regions_list, matrix_len, small_font=False)
+    axes_formatter.format_axes(xy, xy, regions_list, matrix_len, small_font=False)
 
     for i in range(2):
         axs[6, i].set_xlabel(
@@ -94,7 +93,8 @@ def plot_confmat(confmat_dict, plot_path, regions, plt_prop):
     plt.subplots_adjust(**prop)
     # fig.tight_layout()
     plt.savefig(plot_path + ".png", dpi=300)
-    plt.savefig(plot_path + ".svg", dpi=300)
+    if do_svg:
+        plt.savefig(plot_path + ".svg", dpi=300)
 
     # dir_path, fig_pref = os.path.split(plot_path)
     logger.info("Plotting... Done! Results saved to: %s", plot_path)
@@ -117,6 +117,7 @@ def process(paths):
         paths.confmat_plot,
         regions,
         plt_prop,
+        paths.do_svg
     )
 
 
@@ -155,6 +156,15 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to "
+    )
+
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="do_svg",
+        help="Do svg plot?",
     )
 
     arguments = parser.parse_args()

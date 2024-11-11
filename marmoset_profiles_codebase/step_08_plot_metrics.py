@@ -69,7 +69,7 @@ def set_grid(ax, left_y_range, up_right_y_range):
         )
 
 
-def barh_plot(density_list, colors, order, metric, labels_y, grid, output_dir):
+def barh_plot(density_list, colors, order, metric, labels_y, grid, output_dir, do_svg=False):
     gs_kw = dict(width_ratios=[1, 1])
     fig, ax = plt.subplot_mosaic(
         [["left", "right"]],
@@ -170,7 +170,9 @@ def barh_plot(density_list, colors, order, metric, labels_y, grid, output_dir):
     plt.subplots_adjust(**prop)
 
     plt.savefig(os.path.join(output_dir, f"{metric}.png"), dpi=C_DPI)
-    plt.savefig(os.path.join(output_dir, f"{metric}.svg"), dpi=C_DPI)
+
+    if do_svg:
+        plt.savefig(os.path.join(output_dir, f"{metric}.svg"), dpi=C_DPI)
 
 
 def read_data(paths):
@@ -208,7 +210,10 @@ def process(paths, order, grid=False):
                 m_values.append(den)
                 colors.append([r / 255, g / 255, b / 255])
 
-        barh_plot(m_values, colors, order, metric, labels_y, grid, paths.output_dir)
+        barh_plot(m_values, colors,
+                  order, metric, labels_y,
+                  grid, paths.output_dir,
+                  paths.do_svg)
 
 
 def parse_args():
@@ -236,6 +241,15 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--svg",
+        required=False,
+        action="svg",
+        dest="do_svg",
+        help="Do svg plot?",
     )
 
     arguments = parser.parse_args()
