@@ -1,45 +1,32 @@
 import argparse
 import os
 
-import matplotlib.font_manager as font_manager
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.ticker import FixedLocator
 
 from plot_methods.plot_formatting import AxesFormattingVerticalBarhPlot
 from plot_methods.plot_logger import get_logger
 from plot_methods.plot_properties import PlotProperties
 from read_json import read_json
-from sort_map import get_sort_map
 
-# TODO
 C_DPI = 300
 
-C_DEFAULT_FONT_PATH = "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf"
-C_DEFAULT_FONT_SIZE = 8
-C_DEFAULT_FONT_PROP = font_manager.FontProperties(
-    family="Arial", size=C_DEFAULT_FONT_SIZE
-)
-C_LABEL_FONT_SIZE = 6
-C_LABEL_FONT_PROP = font_manager.FontProperties(family="Arial", size=C_LABEL_FONT_SIZE)
-
-LINEWIDTH = 1
-
 BARWIDTH = 0.6
-LABELPAD = 1
-TICKS_LEN = 2
-TICKS_PAD = 0.5
 
-REL_X_AXIS = {"min": 0.0, "max": 1, "step": 0.25}  # values for ticks
-TRICK_X_AXIS = {"min": 0, "max": 0.4, "step": 0.1}
+TRICK_X_AXIS = {"min": 0, "max": 1, "step": 0.2}
+STEP_NUM = (TRICK_X_AXIS["max"] - TRICK_X_AXIS["min"]) / TRICK_X_AXIS["step"]
+
+REL_X_AXIS = {"min": 0.0, "max": 1}  # values for ticks
+REL_STEP = (REL_X_AXIS["max"] - REL_X_AXIS["min"]) / STEP_NUM
+REL_X_AXIS["step"] = REL_STEP
 
 # Whisker lengths
-WIDTH_B = [2.4, 1.65, 2.9, 3.2, 2.9, 2.4, 2.45, 4.4, 4.4, 4.2, 3.5, 5.7, 5.2]
+WIDTH_B = [2.4, 1.65, 2.9, 3.2, 2.9, 2.4, 2.45, 4.4, 3.8, 3.2, 2.9, 4.9, 4.4]
 
-LEFT_PLOT_IDX = 63  # max index of area in left plot
-RIGHT_UP_PLOT_IDX = 116  # max index of area in upper right plot
-AREA_N = 116
+LEFT_PLOT_IDX = 62  # max index of area in left plot
+AREA_N = 115  # max index of area in upper right plot
+RIGHT_PLOT_IDX = 53
 
 
 def cm2inch(x):
@@ -51,25 +38,26 @@ C_FIGSIZE = (cm2inch(9), cm2inch(15))
 C_LOGGER_NAME = "metrics"
 
 
-def set_grid(ax, left_y_range, up_right_y_range):
+def set_grid(ax, left_y_range, up_right_y_range, plt_prop):
     for x in range(25, 125, 25):
         ax["left"].plot(
             [x / 100, x / 100],
             [0.5, left_y_range[-1] + 0.3],
             color="gray",
-            linewidth=0.25 * LINEWIDTH,
+            linewidth=0.25 * plt_prop.line_width,
             ls="--",
         )
         ax["right"].plot(
             [x / 100, x / 100],
             [0.5, up_right_y_range[-1] + 0.3],
             color="gray",
-            linewidth=0.25 * LINEWIDTH,
+            linewidth=0.25 * plt_prop.line_width,
             ls="--",
         )
 
 
-def barh_plot(density_list, colors, order, metric, labels_y, grid, output_dir, do_svg=False):
+def barh_plot(density_list, colors, order, metric,
+              labels_y, grid, plt_prop, output_dir, do_svg=False):
     gs_kw = dict(width_ratios=[1, 1])
     fig, ax = plt.subplot_mosaic(
         [["left", "right"]],
@@ -78,31 +66,40 @@ def barh_plot(density_list, colors, order, metric, labels_y, grid, output_dir, d
         constrained_layout=False,
     )
 
-    left_y_range = np.arange(1, LEFT_PLOT_IDX + 1)
+    y_range = np.arange(1, LEFT_PLOT_IDX + 1)
     ax["left"].barh(
-        left_y_range,
+        y_range,
         np.array(density_list[AREA_N - LEFT_PLOT_IDX:]) - REL_X_AXIS["min"],
         color=colors[AREA_N - LEFT_PLOT_IDX:],
-        linewidth=LINEWIDTH,
+        linewidth=plt_prop.line_width,
         height=BARWIDTH,
     )
     ax["left"].set_zorder(100)
     ax["left"].set_facecolor("none")
 
-    up_right_y_range = np.arange(1, RIGHT_UP_PLOT_IDX - LEFT_PLOT_IDX + 1)
+    ax["right"].set_facecolor("none")
+
+    barh_values = np.array(density_list[:RIGHT_PLOT_IDX])
+
+    barh_values = np.concatenate((np.zeros(LEFT_PLOT_IDX - RIGHT_PLOT_IDX), barh_values))
+    barh_colors = colors[-AREA_N:-LEFT_PLOT_IDX]
+
+    for _ in range(LEFT_PLOT_IDX - RIGHT_PLOT_IDX):
+        barh_colors.insert(0, [1, 1, 1])
+
     ax["right"].barh(
-        up_right_y_range,
-        np.array(density_list[-RIGHT_UP_PLOT_IDX:-LEFT_PLOT_IDX]) - REL_X_AXIS["min"],
-        color=colors[-RIGHT_UP_PLOT_IDX:-LEFT_PLOT_IDX],
-        linewidth=LINEWIDTH,
+        y_range,
+        barh_values,
+        color=barh_colors,
+        linewidth=plt_prop.line_width,
         height=BARWIDTH,
     )
 
     if grid is True:
-        set_grid(ax, left_y_range, up_right_y_range)
+        set_grid(ax, y_range, y_range, plt_prop)
 
     text_posy = LEFT_PLOT_IDX + 1
-    text_posy_1 = RIGHT_UP_PLOT_IDX - LEFT_PLOT_IDX + 1
+    text_posy_1 = AREA_N - RIGHT_PLOT_IDX + 1
     a_i = 0
     for key, items in order[2].items():
 
@@ -123,10 +120,10 @@ def barh_plot(density_list, colors, order, metric, labels_y, grid, output_dir, d
 
         ax[ax_name].annotate(
             f"{key[:2]}",
-            fontproperties=C_DEFAULT_FONT_PROP,
-            xy=(-0.21, posx),
+            fontproperties=plt_prop.font,
+            xy=(-0.5, posx),
             xycoords="data",
-            xytext=(-0.235, posx),
+            xytext=(-0.55, posx),
             textcoords="data",
             verticalalignment="center",
             horizontalalignment="right",
@@ -140,33 +137,43 @@ def barh_plot(density_list, colors, order, metric, labels_y, grid, output_dir, d
 
         a_i += 1
 
-    ax["right"].set_xlabel(f"{metric} score", fontproperties=C_DEFAULT_FONT_PROP, x=0.6)
-
-    y_left = {"min": 1, "max": LEFT_PLOT_IDX, "step": 1}
-
     x_majors = np.arange(
-        REL_X_AXIS["min"],
-        REL_X_AXIS["max"] + REL_X_AXIS["step"] / 2,
-        REL_X_AXIS["step"],
+        TRICK_X_AXIS["min"],
+        TRICK_X_AXIS["max"] + TRICK_X_AXIS["step"] / 2,
+        TRICK_X_AXIS["step"],
     )
     labels_x = map(lambda x: "0" if x == 0 else "{:.1f}".format(x), x_majors)
 
+    span_limits = {
+        "bottom": 0.25,
+        "left_span": [0.5, LEFT_PLOT_IDX + REL_X_AXIS["step"]]
+    }
+
+    y_left = {"min": 1, "max": LEFT_PLOT_IDX, "step": 1}
+
     axes_formatter_left = AxesFormattingVerticalBarhPlot(ax["left"])
     axes_formatter_left.format_axes(
-        TRICK_X_AXIS, y_left, labels_x, labels_y[AREA_N - LEFT_PLOT_IDX:]
+        TRICK_X_AXIS, y_left, labels_x, labels_y[AREA_N - LEFT_PLOT_IDX:],
+        span_limits
     )
+    right_y_labels = labels_y[-AREA_N:-LEFT_PLOT_IDX]
+    right_y_labels = np.concatenate((np.full(LEFT_PLOT_IDX - RIGHT_PLOT_IDX, ""), right_y_labels))
 
-    y_right = {"min": 1, "max": 53, "step": 1}
+    y_right = {"min": 1, "max": LEFT_PLOT_IDX, "step": 1}
+    span_limits = {
+        "bottom": LEFT_PLOT_IDX - RIGHT_PLOT_IDX,
+        "left_span": [LEFT_PLOT_IDX - RIGHT_PLOT_IDX + 0.25, LEFT_PLOT_IDX + REL_X_AXIS["step"]]
+    }
+
     axes_formatter_right = AxesFormattingVerticalBarhPlot(ax["right"])
     axes_formatter_right.format_axes(
-        TRICK_X_AXIS, y_right, labels_x, labels_y[-RIGHT_UP_PLOT_IDX:-LEFT_PLOT_IDX]
+        REL_X_AXIS, y_right, labels_x, right_y_labels,
+        span_limits
     )
 
-    # x_axis, y_axis, y_labels y_t = np.arange(1, len(labelsy) + 1)
+    ax["right"].set_xlabel(f"{metric} score", fontproperties=plt_prop.font, labelpad=15, x=0.6)
 
-    # axes_formatting(ax['left'], labels_y[AREA_N - LEFT_PLOT_IDX:], 0)
-    # axes_formatting(ax['right'], labels_y[-RIGHT_UP_PLOT_IDX:-LEFT_PLOT_IDX], 1)
-    prop = dict(left=0.1, right=0.97, top=0.97, bottom=0.05, wspace=0.2, hspace=0.3)
+    prop = dict(left=0.04, right=0.97, top=0.97, bottom=0.05, wspace=0.15)
     plt.subplots_adjust(**prop)
 
     plt.savefig(os.path.join(output_dir, f"{metric}.png"), dpi=C_DPI)
@@ -212,8 +219,8 @@ def process(paths, order, grid=False):
 
         barh_plot(m_values, colors,
                   order, metric, labels_y,
-                  grid, paths.output_dir,
-                  paths.do_svg)
+                  grid, plt_prop,
+                  paths.output_dir, paths.do_svg)
 
 
 def parse_args():
@@ -247,7 +254,7 @@ def parse_args():
         "-s",
         "--svg",
         required=False,
-        action="svg",
+        action="store_true",
         dest="do_svg",
         help="Do svg plot?",
     )

@@ -136,7 +136,7 @@ def parse_args():
         "-s",
         "--svg",
         required=False,
-        action="svg",
+        action="store_true",
         dest="do_svg",
         help="Do svg plot?",
     )

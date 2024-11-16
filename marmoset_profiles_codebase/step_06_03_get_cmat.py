@@ -102,14 +102,7 @@ def process(paths):
         logger.info("Cmat for region: %s", region)
         _reg_df = df[df.region == region]
 
-        req_reg_order = pd.unique(_reg_df.label)
-        order_in_reg_df = pd.unique(_reg_df.label)
-        reg_labels = [
-            x
-            for _, x in sorted(
-                zip(req_reg_order, order_in_reg_df), key=lambda pair: pair[0]
-            )
-        ]
+        reg_labels = np.sort(pd.unique(_reg_df.label))
 
         reg_cmat = confusion_matrix(y_true=y_real, y_pred=y_pred, labels=reg_labels)
 

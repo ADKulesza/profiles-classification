@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import matplotlib.font_manager as font_manager
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -15,18 +14,14 @@ C_DPI = 300
 
 BARWIDTH = 0.6
 
-TRICK_X_AXIS = {"min": 0.5, "max": 1, "step": 0.1}
+TRICK_X_AXIS = {"min": 0.8, "max": 1, "step": 0.1}
 STEP_NUM = (TRICK_X_AXIS["max"] - TRICK_X_AXIS["min"]) / TRICK_X_AXIS["step"]
-
-REL_X_AXIS = {"min": 0.0, "max": 1}  # values for ticks
-REL_STEP = (REL_X_AXIS["max"] - REL_X_AXIS["min"]) / STEP_NUM
-REL_X_AXIS["step"] = REL_STEP
 
 # Whisker lengths
 WIDTH_B = [2.4, 1.65, 2.9, 3.2, 2.9, 2.4, 2.45, 4.4, 3.8, 3.2, 2.9, 4.9, 4.4]
 
-LEFT_PLOT_IDX = 63  # max index of area in left plot
-AREA_N = 116  # max index of area in upper right plot
+LEFT_PLOT_IDX = 62  # max index of area in left plot
+AREA_N = 115  # max index of area in upper right plot
 RIGHT_PLOT_IDX = 53
 
 
@@ -39,7 +34,7 @@ C_FIGSIZE = (cm2inch(9), cm2inch(15))
 C_LOGGER_NAME = "metrics"
 
 
-def set_grid(ax, left_y_range, up_right_y_range, plt_prop, ):
+def set_grid(ax, left_y_range, up_right_y_range, plt_prop):
     for x in range(25, 125, 25):
         ax["left"].plot(
             [x / 100, x / 100],
@@ -67,10 +62,21 @@ def barh_plot(density_list, colors, order, metric,
         constrained_layout=False,
     )
 
+    density_list = np.array(density_list)
+
+    density_list = (density_list - np.min(density_list)) / (np.max(density_list) - np.min(density_list))
+    density_list = density_list * (TRICK_X_AXIS["max"] - TRICK_X_AXIS["min"]) + TRICK_X_AXIS["min"]
+
+    REL_X_AXIS = {"min": 0, "max": 1}  # values for ticks
+    REL_STEP = (REL_X_AXIS["max"] - REL_X_AXIS["min"]) / STEP_NUM
+    REL_X_AXIS["step"] = REL_STEP
+
+    left_array = density_list[AREA_N - LEFT_PLOT_IDX:]
+
     y_range = np.arange(1, LEFT_PLOT_IDX + 1)
     ax["left"].barh(
         y_range,
-        np.array(density_list[AREA_N - LEFT_PLOT_IDX:]),
+        left_array,
         color=colors[AREA_N - LEFT_PLOT_IDX:],
         linewidth=plt_prop.line_width,
         height=BARWIDTH,
@@ -80,7 +86,7 @@ def barh_plot(density_list, colors, order, metric,
 
     ax["right"].set_facecolor("none")
 
-    barh_values = np.array(density_list[:RIGHT_PLOT_IDX])
+    barh_values = density_list[:RIGHT_PLOT_IDX]
 
     barh_values = np.concatenate((np.zeros(LEFT_PLOT_IDX - RIGHT_PLOT_IDX), barh_values))
     barh_colors = colors[-AREA_N:-LEFT_PLOT_IDX]
@@ -138,6 +144,8 @@ def barh_plot(density_list, colors, order, metric,
 
         a_i += 1
 
+
+
     x_majors = np.arange(
         TRICK_X_AXIS["min"],
         TRICK_X_AXIS["max"] + TRICK_X_AXIS["step"] / 2,
@@ -175,7 +183,7 @@ def barh_plot(density_list, colors, order, metric,
 
     ax["right"].set_xlabel(f"{metric} score", fontproperties=plt_prop.font, labelpad=15, x=0.6)
 
-    prop = dict(left=0.04, right=0.985, top=0.97, bottom=0.05, wspace=0.05)
+    prop = dict(left=0.04, right=0.985, top=0.97, bottom=0.05, wspace=0.15)
     plt.subplots_adjust(**prop)
 
     plt.savefig(os.path.join(output_dir, f"{metric}_zoom.png"), dpi=C_DPI)
@@ -218,7 +226,9 @@ def process(paths, order, grid=False):
                 m_values.append(den)
                 colors.append([r / 255, g / 255, b / 255])
 
-        barh_plot(m_values, colors, order, metric, labels_y, grid, plt_prop,
+        barh_plot(m_values, colors,
+                  order, metric, labels_y,
+                  grid, plt_prop,
                   paths.output_dir, paths.do_svg)
 
 
@@ -253,7 +263,7 @@ def parse_args():
         "-s",
         "--svg",
         required=False,
-        action="svg",
+        action="store_true",
         dest="do_svg",
         help="Do svg plot?",
     )

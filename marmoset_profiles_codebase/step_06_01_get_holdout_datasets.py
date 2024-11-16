@@ -31,7 +31,6 @@ def read_data(paths):
 
     labels_id = profiles_df.area_id.array
 
-
     logger.info("Loading data... Done!")
 
     return profiles, profiles_df, labels_id
@@ -47,7 +46,6 @@ class CreateHoldoutSets:
             self._profiles_df,
             self._labels
         ) = read_data(paths)
-
 
     def run(self):
 

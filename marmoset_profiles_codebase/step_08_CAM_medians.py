@@ -154,7 +154,7 @@ def axes_formatting(ax, x_axis):
 #     return stat
 
 
-def get_plot(stat, output_path, area_name):
+def get_plot(stat, output_path, area_name, do_svg=False):
     fig, ax = plt.subplots(figsize=C_FIGSIZE)
 
     # profile_corridor = [stat[1] - stat[0], stat[1] + stat[2]]
@@ -213,7 +213,8 @@ def get_plot(stat, output_path, area_name):
     plt.subplots_adjust(**prop)
 
     plt.savefig(output_path, dpi=C_DPI)
-    # plt.savefig(output_path.replace(".png", ".svg"), dpi=C_DPI)
+    if do_svg:
+        plt.savefig(output_path.replace(".png", ".svg"), dpi=C_DPI)
     plt.close()
 
 
@@ -225,6 +226,7 @@ def read_data(paths):
     logger.info("%s", paths.validation_csv)
 
     heatmaps = np.load(paths.heatmaps)
+
     logger.info("%s", paths.validation_csv)
 
     logger.info("Loading data... Done!")
@@ -245,12 +247,10 @@ def process(paths):
 
         real_path = os.path.join(_area_path, "real_heatmap.npy")
         real_heatmap = np.load(real_path)
-        logger.info("AAAA %s", real_heatmap.shape)
 
-
-        fname_hm = os.path.join(_area_path, _area + "_median_heatmap.png")
+        fname_hm = os.path.join(paths.output, _area + "_median_heatmap.png")
         logger.info("OUTPUT: %s", fname_hm)
-        get_plot(real_heatmap, fname_hm, _area)
+        get_plot(real_heatmap, fname_hm, _area, paths.do_svg)
 
 
 def parse_args():
@@ -314,7 +314,7 @@ def parse_args():
         "-s",
         "--svg",
         required=False,
-        action="svg",
+        action="store_true",
         dest="do_svg",
         help="Do svg plot?",
     )

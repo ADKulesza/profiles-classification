@@ -31,12 +31,10 @@ def read_data(paths):
     profiles_df = pd.read_csv(paths.validation_csv)
     logger.info("%s", paths.validation_csv)
 
-    labels_processed = pd.read_csv(paths.labels_processed)
-    logger.info("%s", paths.labels_processed)
 
     logger.info("Loading data... Done!")
 
-    return profiles_df, labels_processed
+    return profiles_df
 
 
 def check_all_areas(df, areas_df):
@@ -45,18 +43,17 @@ def check_all_areas(df, areas_df):
         return []
     else:
         logger.info("Missing areas: %s", diif_col)
-        miss_idx = areas_df[areas_df.area_id.isin(diif_col)].idx_in_model.values
+        miss_idx = areas_df[areas_df.area_id.isin(diif_col)].label.values
         logger.info("Missing idx: %s", miss_idx)
         return miss_idx
 
 
 def process(paths):
-    df, labels_processed = read_data(paths)
+    df = read_data(paths)
 
     df.dropna(inplace=True)
     y_real = np.array(df.type_id, dtype='int8')
 
-    req_order = pd.unique(df.area_order)
 
     y_pred = np.array(df.pred_type_id, dtype='int8')
 
@@ -68,19 +65,12 @@ def process(paths):
     np.save(confmat_path, confmat)
     logger.info("Confusion matrix saved... %s", confmat_path)
 
-    y_real = df.idx_in_model
+    y_real = df.label
     y_pred = df.pred_y
     for area_type in AREAS_TYPES:
         _type_df = df[df.type == area_type]
 
-        req_type_order = pd.unique(_type_df.area_order)
-        order_in_type_df = pd.unique(_type_df.idx_in_model)
-        type_labels = [
-            x
-            for _, x in sorted(
-                zip(req_type_order, order_in_type_df), key=lambda pair: pair[0]
-            )
-        ]
+        type_labels = np.sort(pd.unique(_type_df.label))
 
         logger.info("Area type: %s", area_type)
         logger.info("LABELS:")
@@ -112,15 +102,6 @@ def parse_args():
         help="Path to ",
     )
 
-    parser.add_argument(
-        "-l",
-        "--labels-processed",
-        required=True,
-        dest="labels_processed",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output csv file with ",
-    )
 
     parser.add_argument(
         "-o",

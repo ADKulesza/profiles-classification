@@ -101,7 +101,7 @@ def process(paths):
         confmat = confmats[area_type]
 
         _labels = labels_names[labels_names.type == area_type]
-        _labels = _labels.sort_values("order")
+        _labels = _labels.sort_index()
 
         _labels = list(_labels.area)
 
@@ -126,7 +126,7 @@ def process(paths):
         plot_fname,
         AREAS_TYPES,
         plt_prop,
-        x_cmat=True,
+        True,
         paths.do_svg
     )
 
@@ -172,7 +172,7 @@ def parse_args():
         "-s",
         "--svg",
         required=False,
-        action="svg",
+        action="store_true",
         dest="do_svg",
         help="Do svg plot?",
     )

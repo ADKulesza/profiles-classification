@@ -41,7 +41,7 @@ def read_data(paths):
     return confmat_dict, area_order
 
 
-def plot_confmat(confmat, matrix_len, plot_path, xy_labels, plt_prop):
+def plot_confmat(confmat, matrix_len, plot_path, xy_labels, plt_prop, do_svg=False):
     logger.info("Plotting... ")
     fig, ax = plt.subplots(figsize=plt_prop.cm2inch((6, 6)))
 
@@ -52,20 +52,19 @@ def plot_confmat(confmat, matrix_len, plot_path, xy_labels, plt_prop):
     axes_formatter = AxesFormattingRegConfusionMatrix(ax)
     axes_formatter.format_axes(xy, xy, xy_labels, matrix_len, small_font=False)
 
-    # ax.set_ylabel(
-    #     "Prawdziwa klasa", labelpad=plt_prop.label_pad, fontproperties=plt_prop.font
-    # )
-    #
-    # ax.set_xlabel(
-    #     "Przewidywana klasa", labelpad=plt_prop.label_pad, fontproperties=plt_prop.font
-    # )
-    # ax.xaxis.set_label_coords(0.5, 0.0)
     title = get_filename(plot_path)
     title = title.replace("_", " ")
     ax.set_title(title, fontproperties=plt_prop.font)
 
+    # prop = dict(
+    #     left=0.2, right=0.8, top=0.966, bottom=0.0175
+    # )
+    # plt.subplots_adjust(**prop)
+
     plt.savefig(plot_path + ".png", dpi=300)
-    plt.savefig(plot_path + ".svg", dpi=300)
+
+    if do_svg:
+        plt.savefig(plot_path + ".svg", dpi=300)
 
     logger.info("Plotting... Done! Results saved to: %s", plot_path)
 
@@ -91,6 +90,7 @@ def process(paths):
             plot_fname,
             regions[_reg],
             plt_prop,
+            paths.do_svg
         )
 
     confmat = confmats["regionxregion_cmat"]
@@ -102,6 +102,7 @@ def process(paths):
         plot_fname,
         regions_list,
         plt_prop,
+        paths.do_svg
     )
 
 
@@ -146,8 +147,8 @@ def parse_args():
         "-s",
         "--svg",
         required=False,
-        action="svg",
-        dest="binary",
+        action="store_true",
+        dest="do_svg",
         help="Do svg plot?",
     )
 

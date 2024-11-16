@@ -42,7 +42,7 @@ def process(paths):
     df = read_data(paths)
     df.dropna(inplace=True)
 
-    y_true = np.array(df.idx_in_model)
+    y_true = np.array(df.label)
 
     macro_metrics = {
         "dataset": [],
@@ -78,40 +78,38 @@ def process(paths):
     label_metrics = {
         "area": [],
         "area_id": [],
-        "idx_in_model": [],
+        "label": [],
         "accuracy": [],
         "recall": [],
         "precision": [],
         "f1": [],
-        "area_order": [],
         "region": [],
         "color_r": [],
         "color_g": [],
         "color_b": [],
     }
 
-    area_list_gb = df.groupby(["area_order", "area", "area_id", "idx_in_model", "region",
+    area_list_gb = df.groupby(["area", "area_id", "label", "region",
                                "color_r", "color_g", "color_b"])
 
     logger.info("\nArea metrics processing...", )
     for area_tuple in area_list_gb:
         area_info = area_tuple[0]
-        logger.info("Processing area... %s", area_info[1])
+        logger.info("Processing area... %s", area_info[0])
 
-        label_metrics["area_order"].append(area_info[0])
-        label_metrics["area"].append(area_info[1])
-        label_metrics["area_id"].append(area_info[2])
-        label_metrics["idx_in_model"].append(area_info[3])
-        label_metrics["region"].append(area_info[4])
-        label_metrics["color_r"].append(area_info[5])
-        label_metrics["color_g"].append(area_info[6])
-        label_metrics["color_b"].append(area_info[7])
+        label_metrics["area"].append(area_info[0])
+        label_metrics["area_id"].append(area_info[1])
+        label_metrics["label"].append(area_info[2])
+        label_metrics["region"].append(area_info[3])
+        label_metrics["color_r"].append(area_info[4])
+        label_metrics["color_g"].append(area_info[5])
+        label_metrics["color_b"].append(area_info[6])
 
         _y_true = np.zeros(y_true.shape[0])
-        _y_true[y_true == area_info[3]] = 1
+        _y_true[y_true == area_info[2]] = 1
 
         _y_pred = np.zeros(y_true.shape[0])
-        _y_pred[y_pred == area_info[3]] = 1
+        _y_pred[y_pred == area_info[2]] = 1
 
         label_metrics["accuracy"].append(metrics.accuracy_score(_y_true, _y_pred))
         label_metrics["f1"].append(metrics.f1_score(_y_true, _y_pred))

@@ -4,11 +4,10 @@ source header.sh
 
 CONFUSION_MATRIX='false'
 CONFUSION_MATRIX_REGION='false'
+METRICS='false'
 CONFUSION_MATRIX_TYPES='false'
 CONFIDENCE_VS_TYPE='false'
 CONFIDENCE_PER_LABEL='false'
-METRICS='false'
-METRICS_VS_TYPE='false'
 
 CAM_VISUALIZATION='true'
 CAM_VISUALIZATION_PROFILE='false'
@@ -21,7 +20,7 @@ if [ ${CONFUSION_MATRIX} = 'true' ]; then
       for model_set_dir in ${holdout_dir}/*/
       do
       cmat="${model_set_dir}cmat.npy"
-      python ${CODEBASE_DIR}/step_08_plot_confusion_matrix.py \
+      python ${CODEBASE_DIR}/step_08_01_plot_confusion_matrix.py \
       --area-order "areas_order.json"\
       --confmat ${cmat} \
       --figsize 15 \
@@ -40,7 +39,7 @@ if [ ${CONFUSION_MATRIX} = 'true' ]; then
 
   done
 
-  python ${CODEBASE_DIR}/step_08_plot_confusion_matrix.py \
+  python ${CODEBASE_DIR}/step_08_01_plot_confusion_matrix.py \
   --area-order "areas_order.json" \
   --confmat ${STEP_06_EVALUATION_ALL_VS_ALL}/"cmat_mean.npy" \
   --figsize 15\
@@ -53,7 +52,7 @@ if [ ${CONFUSION_MATRIX_REGION} = 'true' ]; then
       for model_set_dir in ${holdout_dir}/*/
       do
         cmat_dir="${model_set_dir}region_cmat"
-        python ${CODEBASE_DIR}/step_08_plot_region_cmat.py \
+        python ${CODEBASE_DIR}/step_08_02_plot_region_cmat.py \
         --area-order "areas_order.json"\
         --input-directory ${cmat_dir} \
         --output-confmat-plot "${cmat_dir}"
@@ -69,7 +68,7 @@ if [ ${CONFUSION_MATRIX_TYPES} = 'true' ]; then
       do
         cmat_dir="${model_set_dir}/${STEP_06_TYPE_CMAT_DIR}"
 
-        python ${CODEBASE_DIR}/step_08_plot_types_cmat.py \
+        python ${CODEBASE_DIR}/step_08_05_plot_types_cmat.py \
         --input-directory ${cmat_dir} \
         --label-names "${LABEL_NAMES}" \
         --output-confmat-plot "${cmat_dir}"
@@ -100,26 +99,14 @@ if [ ${METRICS} = 'true' ]; then
   for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
     for model_set_dir in ${holdout_dir}/*_set_*/
       do
-      python ${CODEBASE_DIR}/step_08_plot_metrics_zoom.py \
+      python ${CODEBASE_DIR}/step_08_03_plot_metrics.py \
       --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
       --output-dir ${model_set_dir}/${STEP_06_METRICS_DIR}
-    done
-  done
 
-fi
+#      python ${CODEBASE_DIR}/step_08_03_plot_metrics_zoom.py \
+#      --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
+#      --output-dir ${model_set_dir}/${STEP_06_METRICS_DIR}
 
-if [ ${METRICS_VS_TYPE} = 'true' ]; then
-  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
-    for model_set_dir in ${holdout_dir}/*_set_*/
-      do
-        output_dir="${model_set_dir}/${STEP_08_METRICS_VS_DIR}"
-
-        mkdir -p ${output_dir}
-
-        python ${CODEBASE_DIR}/step_08_plot_metrics_vs_type.py \
-        --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
-        --label-names "${LABEL_NAMES}" \
-        --output-dir "${output_dir}"
     done
   done
 

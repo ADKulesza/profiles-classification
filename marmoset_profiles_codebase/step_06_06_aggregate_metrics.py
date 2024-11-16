@@ -74,7 +74,7 @@ def get_mean_of_area_df(area_df):
     df_q3 = gb.quantile(0.75, numeric_only=True)
     df_q3 = df_q3.add_suffix("_q3", axis=1)
 
-    gb_info = area_df[["area", "area_order", "area_id", "idx_in_model", "region",
+    gb_info = area_df[["area", "area_id", "label", "region",
                        "color_r", "color_g", "color_b"]].groupby("area")
     df_info = gb_info.apply(lambda x: x.drop_duplicates()).reset_index(drop=True)
     df_info.set_index('area', inplace=True)

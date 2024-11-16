@@ -4,7 +4,8 @@ source header.sh
 
 export ROCM_PATH=/opt/rocm
 
-CAM_EXP='true'
+CAM_EXP='false'
+DO_MEDIANS='true'
 DO_BOOTSTRAP='false'
 
 
@@ -33,18 +34,32 @@ if [ ${CAM_EXP} = true ]; then
   done
 fi
 
+if [ ${DO_MEDIANS} = true ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+            heatmap_dir="${model_set_dir}/${STEP_07_HEATMAPS}"
+#            model_set_dir="step_06_evaluation_all_vs_all/holdout_2/multi_branch_model_set_20"
+#            heatmap_dir="step_06_evaluation_all_vs_all/holdout_2/multi_branch_model_set_20/${STEP_07_HEATMAPS}"
+
+            python ${CODEBASE_DIR}/step_07_heatmaps_medians.py --config-fname "${CONFIG_FNAME}"\
+              --profiles-csv ${model_set_dir}/"results.csv" \
+              --heatmap "${heatmap_dir}/heatmap.npy" \
+              --output-dir "${heatmap_dir}"
+        done
+    done
+fi
+
 if [ ${DO_BOOTSTRAP} = true ]; then
-#  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
-#    for model_set_dir in ${holdout_dir}/*_set_*/
-#        do
-#            heatmap_dir="${model_set_dir}/${STEP_07_HEATMAPS}"
-            model_set_dir="step_06_evaluation_all_vs_all/holdout_2/multi_branch_model_set_20"
-            heatmap_dir="step_06_evaluation_all_vs_all/holdout_2/multi_branch_model_set_20/${STEP_07_HEATMAPS}"
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+            heatmap_dir="${model_set_dir}/${STEP_07_HEATMAPS}"
 
             python ${CODEBASE_DIR}/step_07_heatmaps_bootstrap.py --config-fname "${CONFIG_FNAME}"\
               --profiles-csv ${model_set_dir}/"results.csv" \
               --heatmap "${heatmap_dir}/heatmap.npy" \
               --output-dir "${heatmap_dir}"
-#        done
-#    done
+        done
+    done
 fi
