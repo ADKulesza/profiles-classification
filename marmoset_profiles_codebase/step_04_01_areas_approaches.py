@@ -90,7 +90,6 @@ class OneVsAll(PickAreas):
 
     def _get_area_id_to_process(self):
         # _areas_to_process
-        self._check_area_id_values(self._areas_to_process)
         areas_id = np.array(self._config("specific_area_id_list"))
         if self._config("other_to_zero"):
             areas_id = np.insert(areas_id, 0, 0)
@@ -108,13 +107,23 @@ class OneVsAll(PickAreas):
     def process(self):
         df = super().process()
 
-        to_zero_area_id = np.setdiff1d(self._areas_to_process, self._areas_to_process)
+        all_areas = pd.unique(df.area_id)
+        to_zero_area_id = np.setdiff1d(all_areas, self._areas_to_process)
         to_zero_df = df.area_id.isin(to_zero_area_id)
+        df["idx_in_model"] = pd.NA
+
         if self._config("other_to_zero"):
-            df.loc[to_zero_df, "label"] = 0
+            df.loc[to_zero_df, "idx_in_model"] = 0
+            for area_id in self._config("specific_area_id_list"):
+
+                df.loc[df.area_id == area_id, "idx_in_model"] = 1
         else:
             df.loc[to_zero_df, "accept"] = False
             df = df[df.accept]
+
+        areas_df = copy.copy(self._areas_df)
+        areas_df.loc[:, 'label'] = areas_df.index
+        df = pd.merge(df, areas_df, on="area_id")
 
         return df
 

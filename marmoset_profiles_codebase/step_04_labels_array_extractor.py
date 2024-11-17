@@ -26,7 +26,7 @@ def read_data(paths):
     return prfoiles_df
 
 
-def save_data(raw_labels_array, one_hot_array, df, paths):
+def save_data(raw_labels_array, one_hot_array, paths):
     logger.info("Saving data...")
     np.save(paths.raw_labels, raw_labels_array)
     logger.info("%s", paths.raw_labels)
@@ -45,11 +45,11 @@ def check_one_hot(one_hot, model_labels_array):
 def process(paths):
     df = read_data(paths)
 
-    raw_labels_array = np.array(df.label)
+    raw_labels_array = np.array(df.idx_in_model)
 
     one_hot_array = to_categorical(raw_labels_array, dtype=np.uint)
     check_one_hot(one_hot_array, raw_labels_array)
-    save_data(raw_labels_array, one_hot_array, df, paths)
+    save_data(raw_labels_array, one_hot_array, paths)
 
 
 def parse_args(doc_source):

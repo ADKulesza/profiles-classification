@@ -72,12 +72,17 @@ def pick_areas_dataset(config, paths):
     )
 
     processed_df.loc[:, "npy_path"] = paths.output_profiles
-    processed_df = processed_df.drop(columns=["accept", "holdout_section"])
+
+    if not paths.one_vs_all:
+        processed_df = processed_df.drop(columns=["holdout_section"])
+    else:
+        processed_df = processed_df.drop(columns=["accept"])
     processed_df = processed_df.loc[:, ~processed_df.columns.str.contains("^Unnamed")]
 
-    logger.info("Saving profiles...")
-    np.save(paths.output_profiles, out_profiles)
-    logger.info("Done! Result saved to... %s!", paths.output_profiles)
+    if not paths.one_vs_all:
+        logger.info("Saving profiles...")
+        np.save(paths.output_profiles, out_profiles)
+        logger.info("Done! Result saved to... %s!", paths.output_profiles)
 
     logger.info("Saving dataframe...")
     processed_df.to_csv(paths.dataset_csv)
@@ -129,7 +134,7 @@ def parse_args(doc_source):
         type=str,
         metavar="FILENAME",
         help="Path to csv file with info about accepted profiles",
-    ),
+    )
 
     parser.add_argument(
         "-x",
@@ -139,7 +144,7 @@ def parse_args(doc_source):
         type=str,
         metavar="FILENAME",
         help="Path to output npy file with profiles dataset",
-    ),
+    )
 
     parser.add_argument(
         "-a",
@@ -149,7 +154,16 @@ def parse_args(doc_source):
         type=str,
         metavar="FILENAME",
         help="Path to output csv file with labels dataset",
-    ),
+    )
+
+    parser.add_argument(
+        "-n",
+        "--one-vs-all",
+        required=False,
+        action="store_true",
+        dest="one_vs_all",
+        help="Path to output directory",
+    )
 
     arguments = parser.parse_args()
     return arguments
