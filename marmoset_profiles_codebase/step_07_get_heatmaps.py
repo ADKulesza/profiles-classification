@@ -9,8 +9,6 @@ from tensorflow.keras.models import load_model
 from dataset_configuration import DatasetConfiguration
 
 from cnn_models.simple_model import simple_model
-# from cnn_models.multi_branch_model import multi_branch_model
-from cnn_models.multi_branch_binary_model import multi_branch_binary_model
 
 C_LOGGER_NAME = "explanation"
 logging.basicConfig(
@@ -37,39 +35,31 @@ def make_gradcam_heatmap(profile, model, last_conv_idx, pred_index=None):
     # with respect to the activations of the last conv layer
     profile_t = tf.convert_to_tensor(profile)
 
-    with tf.GradientTape() as tape1:
-        A, S = grad_model(profile_t)
+    # --------
+
+    with tf.GradientTape() as tape:
+        last_conv_layer_output, preds = grad_model(profile_t)
         if pred_index is None:
-            pred_index = tf.argmax(S[0])
-        Y_c = S[:, pred_index]
-        S_c = tf.exp(Y_c)
+            pred_index = tf.argmax(preds[0])
+        class_channel = preds[:, pred_index]
 
-    S_deriv1 = tape1.gradient(S_c, A)
+    # This is the gradient of the output neuron (top predicted or chosen)
+    # with regard to the output feature map of the last conv layer
+    grads = tape.gradient(class_channel, last_conv_layer_output)
 
-    S_deriv1_2 = S_deriv1 ** 2
-    S_deriv1_3 = S_deriv1_2 * S_deriv1
+    # This is a vector where each entry is the mean intensity of the gradient
+    # over a specific feature map channel
+    pooled_grads = tf.reduce_mean(grads, axis=1)
 
-    A_sum = tf.reduce_sum(A, 1)
+    # We multiply each channel in the feature map array
+    # by "how important this channel is" with regard to the top predicted class
+    # then sum all the channels to obtain the heatmap class activation
+    last_conv_layer_output = last_conv_layer_output[0]
+    heatmap = last_conv_layer_output @ pooled_grads[..., tf.newaxis]
+    heatmap = tf.squeeze(heatmap)
 
-    a = S_deriv1_2 / ((2 * S_deriv1_2) + (A_sum * S_deriv1_3))
-
-    S_deriv_relu = tf.maximum(S_deriv1, 0)
-
-    w = a @ tf.transpose(S_deriv_relu, (0, 2, 1))
-
-    L = w @ A
-    L_finel = tf.reduce_sum(L, axis=2)
-    L_finel = tf.squeeze(L_finel)
-    heatmap = tf.maximum(L_finel, 0)
-    old_range = tf.math.reduce_max(heatmap) - tf.math.reduce_min(heatmap)
-    if old_range == 0:
-        logger.info("Old range == 0... %s", heatmap)
-        heatmap = tf.fill(tf.shape(heatmap), 0)
-    else:
-        heatmap = (heatmap - tf.math.reduce_min(heatmap)) / (
-                tf.math.reduce_max(heatmap) - tf.math.reduce_min(heatmap)
-        )
-
+    # For visualization purpose, we will also normalize the heatmap between 0 & 1
+    heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
     return heatmap.numpy(), pred_index
 
 
