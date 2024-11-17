@@ -56,15 +56,15 @@ def read_data(paths):
 
 
 def train_model(
-    paths,
-    epochs,
-    patience,
-    batch_size=32,
-    add_noise=False,
-    noise_ratio=0.2,
-    add_artifacts=False,
-    artifacts_ratio=0.2,
-    learning_rate=0.001,
+        paths,
+        epochs,
+        patience,
+        batch_size=32,
+        add_noise=False,
+        noise_ratio=0.2,
+        add_artifacts=False,
+        artifacts_ratio=0.2,
+        learning_rate=0.001,
 ):
     model_name = paths.model_name
     model_method = MODELS_LIST[model_name]
@@ -153,9 +153,12 @@ def train_model(
         models_df = pd.DataFrame(model_info)
         logger.info("Info about models saved in... %s", df_path)
         models_df.to_csv(df_path)
-        time.sleep(10)
+        time.sleep(3)
         del model_history
-        time.sleep(15)
+        time.sleep(5)
+
+        if paths.one_vs_all:
+            break
 
 
 def parse_args():
