@@ -104,7 +104,7 @@ def process(config, paths):
 
     logger.info("%s", model.summary())
 
-    layer_index = 6
+    layer_index = 5
     logger.info("Last conv layer: %s", model.layers[layer_index].name)
 
     heatmaps_output = np.zeros(x_test.shape[:-1])
