@@ -73,6 +73,14 @@ def process(config, paths):
             new_df.loc[df_valid, f"set_{i}{i_v}"] = "valid"
     logger.info("Cross shuffle-shuffle... Done!")
 
+    if paths.one_vs_all:
+        new_df["idx_in_model"] = 0
+
+        # TODO
+        for area_id in config("specific_area_id_list"):
+            df.loc[df.area_id == area_id, "idx_in_model"] = 1
+
+
     new_df = new_df.loc[:, ~new_df.columns.str.contains("^Unnamed")]
 
     logger.info("Saving data...")
@@ -106,7 +114,7 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
-    ),
+    )
 
     parser.add_argument(
         "-y",
@@ -116,7 +124,7 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
-    ),
+    )
 
     parser.add_argument(
         "-d",
@@ -126,7 +134,7 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
-    ),
+    )
 
     parser.add_argument(
         "-t",
@@ -136,7 +144,16 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
-    ),
+    )
+
+    parser.add_argument(
+        "-n",
+        "--one-vs-all",
+        required=False,
+        action="store_true",
+        dest="one_vs_all",
+        help="Path to output directory",
+    )
 
     arguments = parser.parse_args()
     return arguments

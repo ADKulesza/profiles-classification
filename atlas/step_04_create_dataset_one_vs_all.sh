@@ -92,7 +92,8 @@ while IFS="," read -r area_id _l _idx; do
           --profiles ${STEP_04_ONE_VS_ALL}/${STEP_04_PICK_PROFILES} \
           --labels ${label_dir}/${STEP_04_RAW_LABELS} \
           --profiles-csv ${STEP_04_ONE_VS_ALL}/${STEP_04_PICK_PROFILES_CSV} \
-          --output-split-profiles-csv ${label_dir}/${STEP_04_SPLIT_DATASET}
+          --output-split-profiles-csv ${label_dir}/${STEP_04_SPLIT_DATASET} \
+          --one-vs-all
 
     rm ${label_dir}/${STEP_04_RAW_LABELS}
 
