@@ -3,9 +3,10 @@
 DO_CLEAN='false'
 DO_CREATE_DIRS='true'
 DO_CREATE_DATASETS='true'
-DO_VISUALIZATION='false'
+DO_VISUALIZATION='true'
 DO_SPLIT_DATASETS='true'
 DO_NORMALIZATION='true'
+GET_PROB='true'
 
 source header.sh
 
@@ -17,19 +18,28 @@ source header.sh
 
 mkdir -p ${STEP_04_ONE_VS_ALL}
 
-  #----------------------------------------------------------
-  # Create datasets
-  #----------------------------------------------------------
-  if [ ${DO_CREATE_DATASETS} = 'true' ]; then
+#----------------------------------------------------------
+# Create datasets
+#----------------------------------------------------------
+if [ ${DO_CREATE_DATASETS} = 'true' ]; then
 
-    python ${CODEBASE_DIR}/step_04_01_areas_picker.py --config-fname ${CONFIG_FNAME} \
-      --areas-def ${LABEL_NAMES} \
-      --input-profiles-npy ${STEP_03_HOLDOUT_DIR}/${STEP_03_TO_TRAIN} \
-      --profiles-csv ${STEP_03_HOLDOUT_DIR}/${STEP_03_TO_TRAIN_CSV} \
-      --output-profiles ${STEP_04_ONE_VS_ALL}/${STEP_04_PICK_PROFILES} \
-      --output-csv ${STEP_04_ONE_VS_ALL}/${STEP_04_PICK_PROFILES_CSV}
+  python ${CODEBASE_DIR}/step_04_01_areas_picker.py --config-fname ${CONFIG_FNAME} \
+    --areas-def ${LABEL_NAMES} \
+    --input-profiles-npy ${STEP_03_HOLDOUT_DIR}/${STEP_03_TO_TRAIN} \
+    --profiles-csv ${STEP_03_HOLDOUT_DIR}/${STEP_03_TO_TRAIN_CSV} \
+    --output-profiles ${STEP_04_ONE_VS_ALL}/${STEP_04_PICK_PROFILES} \
+    --output-csv ${STEP_04_ONE_VS_ALL}/${STEP_04_PICK_PROFILES_CSV}
 
-  fi
+fi
+
+#----------------------------------------------------------
+#
+#----------------------------------------------------------
+if [ ${GET_PROB} = 'true' ]; then
+  python ${CODEBASE_DIR}/step_04_get_label_probabilities.py \
+        --profiles-csv ${STEP_04_ONE_VS_ALL}/${STEP_04_PICK_PROFILES_CSV}
+fi
+
 
 labels_fname=${STEP_02_PROFILE_ARRAYS}/${PRE_LABELS_TO_IDX}
 
@@ -92,12 +102,13 @@ done \
     < <(tail -n +2 ${labels_fname})
 
 
-  #----------------------------------------------------------
-  # Normalization
-  #----------------------------------------------------------
-  if [ ${DO_NORMALIZATION} = 'true' ]; then
+#----------------------------------------------------------
+# Normalization
+#----------------------------------------------------------
+if [ ${DO_NORMALIZATION} = 'true' ]; then
 
-    python ${CODEBASE_DIR}/step_04_norm.py --config-fname ${CONFIG_FNAME} \
-          --input-profiles ${STEP_04_OUTPUT_DIR}/${STEP_04_PICK_PROFILES} \
-          --output-norm-profiles ${STEP_04_ONE_VS_ALL}/${STEP_04_NORM_PROFILES}
-  fi
+  python ${CODEBASE_DIR}/step_04_norm.py --config-fname ${CONFIG_FNAME} \
+        --input-profiles ${STEP_04_OUTPUT_DIR}/${STEP_04_PICK_PROFILES} \
+        --output-norm-profiles ${STEP_04_ONE_VS_ALL}/${STEP_04_NORM_PROFILES}
+fi
+
