@@ -73,7 +73,7 @@ def process(paths):
     profiles_df["region"] = np.nan
 
     for index, row in areas_df.iterrows():
-        _area_idx = row.idx_in_model
+        _area_idx = index
 
         profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_area"] = row.area
         profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_area_id"] = row.area_id
@@ -85,7 +85,7 @@ def process(paths):
     df_path = os.path.join(paths.output, "results.csv")
 
     profiles_df.to_csv(df_path)
-    logger.info("Dataframe has saved in: %s", pred_path)
+    logger.info("Dataframe has saved in: %s", df_path)
 
 
 def parse_args():

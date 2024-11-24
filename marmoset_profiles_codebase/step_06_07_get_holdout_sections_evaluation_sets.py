@@ -7,7 +7,6 @@ import pandas as pd
 from dataset_configuration import DatasetConfiguration
 from norm import NormProfiles
 
-
 C_LOGGER_NAME = "get_sections"
 logging.basicConfig(
     level=getattr(logging, "DEBUG"),
@@ -49,16 +48,15 @@ def process(config, paths):
 
     profiles_df.loc[:, "npy_path"] = paths.output_profiles
 
-    profiles_df = profiles_df.loc[:, ~profiles_df.columns.str.contains("^Unnamed")]
-    logger.info("DataFrame: %s", paths.output_df)
-    profiles_df.to_csv(paths.output_df)
-
     # norm profiles
     profiles = profiles[profiles_df.index_in_npy_array]
+    profiles_df.loc[:, "index_in_npy_array"] = np.arange(profiles.shape[0], dtype=np.uint)
     norm_prof = NormProfiles(config, profiles)
     norm_x = norm_prof.norm_profiles
 
-    np.save(paths.output_profiles, norm_x)
+    profiles_df = profiles_df.loc[:, ~profiles_df.columns.str.contains("^Unnamed")]
+    logger.info("DataFrame: %s", paths.output_df)
+    profiles_df.to_csv(paths.output_df)
 
     np.save(paths.output_profiles, norm_x)
     logger.info("true_x: %s", paths.output_profiles)

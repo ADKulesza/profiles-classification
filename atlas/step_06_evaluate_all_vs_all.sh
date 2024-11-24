@@ -145,6 +145,7 @@ if [ ${DO_SECTION_EVALUATION} = true ]; then
       mkdir -p "${output_dir}"
 
       python ${CODEBASE_DIR}/step_06_08_predict_sections_all_vs_all.py \
+        --areas-def "${LABEL_NAMES}" \
         --profiles "${sections_dir}/${STEP_06_NORM_PROFILES}" \
         --profiles-csv "${sections_dir}/${STEP_06_SECTION_CSV}" \
         --model-path "${model_path}" \
