@@ -6,8 +6,7 @@ import pandas as pd
 
 from dataset_configuration import DatasetConfiguration
 from norm import NormProfiles
-from read_json import read_json
-from sort_map import get_sort_map
+
 
 C_LOGGER_NAME = "get_sections"
 logging.basicConfig(
@@ -29,51 +28,36 @@ def read_data(paths):
     profiles_df = pd.read_csv(paths.profiles_csv)
     logger.info("%s", paths.profiles_csv)
 
-    labels_df = pd.read_csv(paths.labels_processed)
-    logger.info("%s", paths.labels_processed)
-
-    label_names = pd.read_csv(paths.label_names)
-    logger.info("%s", paths.label_names)
-
-    area_order = read_json(paths.area_order)
-    logger.info("%s", paths.area_order)
+    # Loading .csv file with label assignment
+    areas_df = pd.read_csv(paths.areas_def)
+    logger.info("%s", paths.areas_def)
 
     logger.info("Loading data... Done!")
 
-    return profiles, profiles_df, labels_df, label_names, area_order
+    return profiles, profiles_df, areas_df
 
 
 def process(config, paths):
-    (profiles, profiles_df,
-     labels_df, label_names, area_order) = read_data(paths)
-
-    sort_map = get_sort_map(area_order)
-
-    label_names["area_order"] = label_names["area"].map(
-        sort_map["index"]
-    )
+    profiles, profiles_df, areas_df = read_data(paths)
 
     # adding information in profiles_df
+    areas_df.loc[:, 'label'] = areas_df.index
+    profiles_df = pd.merge(profiles_df, areas_df, on="area_id")
+
+    if not paths.one_vs_all:
+        profiles_df["idx_in_model"] = profiles_df.label
+
     profiles_df.loc[:, "npy_path"] = paths.output_profiles
+
     profiles_df = profiles_df.loc[:, ~profiles_df.columns.str.contains("^Unnamed")]
-
-    profiles_df = pd.merge(profiles_df, labels_df[["area_id", "idx_in_model"]], how="left", on="area_id")
-
-    profiles_df = pd.merge(profiles_df, label_names, how="left", on="area_id")
-
-    profiles_df["region"] = np.nan
-    area_regions = area_order[2]
-    for region, area_list in area_regions.items():
-        profiles_df.loc[profiles_df.area.isin(area_list), "region"] = region
-
     logger.info("DataFrame: %s", paths.output_df)
     profiles_df.to_csv(paths.output_df)
 
     # y
-    true_y = profiles_df.idx_in_model.array
-
-    logger.info("true_y: %s", paths.output_y)
-    np.save(paths.output_y, true_y)
+    # true_y = profiles_df.idx_in_model.array
+    #
+    # logger.info("true_y: %s", paths.output_y)
+    # np.save(paths.output_y, true_y)
 
     # norm profiles
     norm_prof = NormProfiles(config, profiles)
@@ -100,6 +84,16 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to file with configuration",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--areas-def",
+        required=True,
+        dest="areas_def",
+        type=str,
+        metavar="FILENAME",
+        help="Path to csv file with info about area_id",
     )
 
     parser.add_argument(
@@ -133,36 +127,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-b",
-        "--labels-processed",
-        required=True,
-        dest="labels_processed",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output csv file with",
-    )
-
-    parser.add_argument(
-        "-n",
-        "--label-names",
-        required=True,
-        dest="label_names",
-        type=str,
-        metavar="FILENAME",
-        help="Path to csv file with",
-    )
-
-    parser.add_argument(
-        "-r",
-        "--area-order",
-        required=True,
-        dest="area_order",
-        type=str,
-        metavar="FILENAME",
-        help="Path to file with",
-    )
-
-    parser.add_argument(
         "-o",
         "--output-profiles",
         required=True,
@@ -173,12 +137,21 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-d",
+        "-f",
         "--output-df",
         required=True,
         dest="output_df",
         type=str,
         metavar="FILENAME",
+        help="Path to output directory",
+    )
+
+    parser.add_argument(
+        "-n",
+        "--one-vs-all",
+        required=False,
+        action="store_true",
+        dest="one_vs_all",
         help="Path to output directory",
     )
 

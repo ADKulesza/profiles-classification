@@ -6,7 +6,8 @@ export ROCM_PATH=/opt/rocm
 
 CAM_EXP='false'
 SALIENCY_EXP='false'
-DO_MEDIANS='true'
+DO_MEDIANS='false'
+DO_SALIENCY_MEDIANS='true'
 DO_BOOTSTRAP='false'
 
 
@@ -70,7 +71,23 @@ if [ ${DO_MEDIANS} = true ]; then
             python ${CODEBASE_DIR}/step_07_heatmaps_medians.py --config-fname "${CONFIG_FNAME}"\
               --profiles-csv ${model_set_dir}/"results.csv" \
               --heatmap "${heatmap_dir}/heatmap.npy" \
-              --output-dir "${heatmap_dir}"
+              --output-dir "${heatmap_dir}" \
+              --name "real_heatmap.npy"
+        done
+    done
+fi
+
+if [ ${DO_SALIENCY_MEDIANS} = true ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+        do
+            maps_dir="${model_set_dir}/saliency_maps"
+
+            python ${CODEBASE_DIR}/step_07_heatmaps_medians.py --config-fname "${CONFIG_FNAME}"\
+              --profiles-csv ${model_set_dir}/"results.csv" \
+              --heatmap "${maps_dir}/heatmap.npy" \
+              --output-dir "${maps_dir}" \
+              --name "saliency_map_medians"
         done
     done
 fi

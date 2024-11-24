@@ -63,12 +63,12 @@ def process(config, paths):
         #  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
         # IQR = Q3 - Q1
         real_heatmap_stat = np.zeros((5, N_BLOCKS))
-        real_heatmap_stat[1] = np.percentile(_heatmaps, 25, axis=0)
-        real_heatmap_stat[2] = np.median(_heatmaps, axis=0)
-        real_heatmap_stat[3] = np.percentile(_heatmaps, 75, axis=0)
-        IQR = real_heatmap_stat[3] - real_heatmap_stat[1]
-        real_heatmap_stat[0] = real_heatmap_stat[1] - 1.5 * IQR
-        real_heatmap_stat[4] = real_heatmap_stat[3] + 1.5 * IQR
+        real_heatmap_stat[0] = np.percentile(_heatmaps, 25, axis=0)
+        real_heatmap_stat[1] = np.median(_heatmaps, axis=0)
+        real_heatmap_stat[2] = np.percentile(_heatmaps, 75, axis=0)
+        # IQR = real_heatmap_stat[3] - real_heatmap_stat[1]
+        # real_heatmap_stat[0] = real_heatmap_stat[1] - 1.5 * IQR
+        # real_heatmap_stat[4] = real_heatmap_stat[3] + 1.5 * IQR
 
         real_heatmap_dict[_area] = real_heatmap_stat
 
@@ -78,7 +78,7 @@ def process(config, paths):
         else:
             os.mkdir(area_dir)
 
-        area_hm_path = os.path.join(area_dir, "real_heatmap.npy")
+        area_hm_path = os.path.join(area_dir, paths.name + ".npy")
         np.save(area_hm_path, real_heatmap_stat)
 
 
@@ -127,6 +127,16 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to output directory",
+    )
+
+    parser.add_argument(
+        "-n",
+        "--name",
+        required=True,
+        dest="name",
+        type=str,
+        metavar="FILENAME",
+        help="Path to ",
     )
 
     arguments = parser.parse_args()

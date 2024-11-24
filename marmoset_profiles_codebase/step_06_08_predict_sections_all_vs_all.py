@@ -7,8 +7,6 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-from read_json import read_json
-
 C_LOGGER_NAME = "get_holdout"
 logging.basicConfig(
     level=getattr(logging, "DEBUG"),
@@ -29,27 +27,22 @@ def read_data(paths):
     profiles_df = pd.read_csv(paths.profiles_csv)
     logger.info("%s", paths.profiles_csv)
 
-    labels_processed = pd.read_csv(paths.labels_processed)
-    logger.info("%s", paths.labels_processed)
+    # Loading .csv file with label assignment
+    areas_df = pd.read_csv(paths.areas_def)
+    logger.info("%s", paths.areas_def)
 
-    label_names = pd.read_csv(paths.label_names)
-    logger.info("%s", paths.label_names)
-
-    area_order = read_json(paths.area_order)
-    logger.info("%s", paths.area_order)
 
     model = load_model(paths.model_path)
     logger.info("%s", paths.model_path)
 
     logger.info("Loading data... Done!")
 
-    return profiles, profiles_df, labels_processed, label_names, area_order, model
+    return areas_df, profiles, profiles_df, model
 
 
 def process(paths):
-    (profiles, profiles_df,
-     label_processed, label_names,
-     area_order,
+    (areas_df,
+     profiles, profiles_df,
      model) = read_data(paths)
 
     x_test = profiles.reshape((profiles.shape[0], profiles.shape[1], 1))
@@ -72,31 +65,22 @@ def process(paths):
 
     profiles_df = profiles_df.loc[:, ~profiles_df.columns.str.contains("^Unnamed")]
 
-    label_processed = pd.merge(label_processed, label_names, on="area_id", how="left")
-
     profiles_df["pred_area"] = np.nan
     profiles_df["pred_area_id"] = np.nan
     profiles_df["pred_color_r"] = np.nan
     profiles_df["pred_color_g"] = np.nan
     profiles_df["pred_color_b"] = np.nan
-    for index, row in label_processed.iterrows():
-        _area = row.area
-        _area_id = row.area_id
-        _area_idx = row.idx_in_model
-        _r = row.color_r
-        _g = row.color_g
-        _b = row.color_b
-
-        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_area"] = _area
-        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_area_id"] = _area_id
-        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_color_r"] = _r
-        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_color_g"] = _g
-        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_color_b"] = _b
-
     profiles_df["region"] = np.nan
-    area_regions = area_order[2]
-    for region, area_list in area_regions.items():
-        profiles_df.loc[profiles_df.pred_area.isin(area_list), "pred_region"] = region
+
+    for index, row in areas_df.iterrows():
+        _area_idx = row.idx_in_model
+
+        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_area"] = row.area
+        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_area_id"] = row.area_id
+        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_color_r"] = row.color_r
+        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_color_g"] = row.color_g
+        profiles_df.loc[profiles_df.pred_y == _area_idx, "pred_color_b"] = row.color_b
+        profiles_df.loc[profiles_df.pred_y == _area_idx, "region"] = row.region
 
     df_path = os.path.join(paths.output, "results.csv")
 
@@ -109,6 +93,16 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description=process.__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    parser.add_argument(
+        "-d",
+        "--areas-def",
+        required=True,
+        dest="areas_def",
+        type=str,
+        metavar="FILENAME",
+        help="Path to csv file with info about area_id",
     )
 
     parser.add_argument(
@@ -129,36 +123,6 @@ def parse_args():
         type=str,
         metavar="FILENAME",
         help="Path to ",
-    )
-
-    parser.add_argument(
-        "-b",
-        "--labels-processed",
-        required=True,
-        dest="labels_processed",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output csv file with",
-    )
-
-    parser.add_argument(
-        "-n",
-        "--label-names",
-        required=True,
-        dest="label_names",
-        type=str,
-        metavar="FILENAME",
-        help="Path to output csv file with",
-    )
-
-    parser.add_argument(
-        "-r",
-        "--area-order",
-        required=True,
-        dest="area_order",
-        type=str,
-        metavar="FILENAME",
-        help="Path to file with",
     )
 
     parser.add_argument(

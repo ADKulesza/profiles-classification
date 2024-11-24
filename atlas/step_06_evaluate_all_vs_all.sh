@@ -2,11 +2,11 @@
 
 DO_HOLDOUT_PREDICT='false'
 DO_HOLDOUT_CONFMAT='false'
-DO_HOLDOUT_TYPES_CONFMAT='true'
+DO_HOLDOUT_TYPES_CONFMAT='false'
 DO_METRICS='false'
 DO_ERRORS_ACROSS_TYPES='false'
 
-DO_SECTION_EVALUATION='false'
+DO_SECTION_EVALUATION='true'
 
 export ROCM_PATH=/opt/rocm
 
@@ -122,30 +122,47 @@ fi
 
 if [ ${DO_SECTION_EVALUATION} = true ]; then
 
-  reformat_labels_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_REFORMAT_LABELS_DIR}
+
   sections_dir=${STEP_06_EVALUATION_ALL_VS_ALL}/${STEP_06_SECTION_EVALUATION}
 
-  mkdir -p "${sections_dir}"
-
-  python ${CODEBASE_DIR}/step_06_07_get_holdout_sections_evaluation_sets.py \
-            --config-fname ${CONFIG_FNAME} \
-            --profiles ${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES} \
-            --profiles-csv ${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES_CSV} \
-            --label-names ${LABEL_NAMES} \
-            --area-order "areas_order.json"\
-            --labels-processed ${reformat_labels_dir}/${STEP_04_LABELS_PROCESSED} \
-            --output-profiles ${sections_dir}/${STEP_06_NORM_PROFILES} \
-            --output-y ${sections_dir}/y_true.npy \
-            --output-df ${sections_dir}/${STEP_06_SECTION_CSV}
-
-  for model_set_dir in ${STEP_05_MODELS}/*/
+#  mkdir -p "${sections_dir}"
+#
+#  python ${CODEBASE_DIR}/step_06_07_get_holdout_sections_evaluation_sets.py \
+#            --config-fname "${CONFIG_FNAME}" \
+#            --areas-def "${LABEL_NAMES}" \
+#            --profiles "${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES}" \
+#            --profiles-csv "${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES_CSV}" \
+#            --output-profiles "${sections_dir}/${STEP_06_NORM_PROFILES}" \
+#            --output-y "${sections_dir}/y_true.npy" \
+#            --output-df "${sections_dir}/${STEP_06_SECTION_CSV}"
+  for model_path in ${STEP_05_MODELS}/*/
     do
 
-      _set_dir=${model_set_dir%*/}
-      _set_dir=${_set_dir##*/}
+      model_dir=${model_path#*/}
+      model_dir="${model_dir%%/}"
 
-      section_model_dir=${sections_dir}/${_set_dir}
+      output_dir="${sections_dir}/${model_dir}"
+      mkdir -p "${output_dir}"
+
+      python ${CODEBASE_DIR}/step_06_08_predict_sections_all_vs_all.py \
+        --profiles "${sections_dir}/${STEP_06_NORM_PROFILES}" \
+        --profiles-csv "${sections_dir}/${STEP_06_SECTION_CSV}" \
+        --model-path "${model_path}" \
+        --output-dir "${output_dir}"
+
+
+
     done
+
+
+#  for model_set_dir in ${STEP_05_MODELS}/*/
+#    do
+#
+#      _set_dir=${model_set_dir%*/}
+#      _set_dir=${_set_dir##*/}
+#
+#      section_model_dir=${sections_dir}/${_set_dir}
+#    done
 
 fi
 
@@ -163,6 +180,7 @@ if [ ${DO_ERRORS_ACROSS_TYPES} = true ]; then
 #          --output-dir ${output_dir}
 
           python ${CODEBASE_DIR}/step_06_09_errors_across_type.py \
+          --areas-def ${LABEL_NAMES} \
           --validation-csv ${model_set_dir}/"results.csv"\
           --cmat ${model_set_dir}/"cmat.npy"\
           --output-dir ${output_dir}

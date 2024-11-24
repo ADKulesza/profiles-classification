@@ -9,9 +9,12 @@ CONFUSION_MATRIX_TYPES='false'
 CONFIDENCE_VS_TYPE='false'
 CONFIDENCE_PER_LABEL='false'
 
-CAM_VISUALIZATION='true'
+CAM_VISUALIZATION='false'
 CAM_VISUALIZATION_PROFILE='false'
 CAM_VISUALIZATION_SIG='false'
+
+SALIENCY_VISUALIZATION='true'
+
 
 reformat_labels_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_REFORMAT_LABELS_DIR}
 
@@ -143,6 +146,27 @@ if [ ${CAM_VISUALIZATION} = 'true' ]; then
       --label-names ${LABEL_NAMES}\
       --heatmaps ${heatmap} \
       --validation-csv ${df_path} \
+      --output-dir ${plots_dir}
+    done
+  done
+fi
+
+if [ ${SALIENCY_VISUALIZATION} = 'true' ]; then
+  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/*/; do
+    for model_set_dir in ${holdout_dir}/*_set_*/
+      do
+
+      plots_dir="${model_set_dir}/saliency_maps"
+      mkdir -p ${plots_dir}
+
+      heatmap="${plots_dir}/saliency_map.npy"
+
+      df_path="${model_set_dir}results.csv"
+
+      python ${CODEBASE_DIR}/step_08_CAM_medians.py --config-fname ${CONFIG_FNAME} \
+      --label-names ${LABEL_NAMES}\
+      --validation-csv ${df_path} \
+      --name "saliency_map_medians" \
       --output-dir ${plots_dir}
     done
   done

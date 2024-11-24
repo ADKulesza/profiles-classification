@@ -225,17 +225,15 @@ def read_data(paths):
     profiles_df = pd.read_csv(paths.validation_csv)
     logger.info("%s", paths.validation_csv)
 
-    heatmaps = np.load(paths.heatmaps)
-
     logger.info("%s", paths.validation_csv)
 
     logger.info("Loading data... Done!")
 
-    return profiles_df, heatmaps
+    return profiles_df
 
 
 def process(paths):
-    profiles_df, heatmaps = read_data(paths)
+    profiles_df = read_data(paths)
 
     area_list = np.array(profiles_df.area.unique())
 
@@ -245,12 +243,12 @@ def process(paths):
         logger.info("Area: %s", _area)
         _area_path = os.path.join(paths.output, _area)
 
-        real_path = os.path.join(_area_path, "real_heatmap.npy")
-        real_heatmap = np.load(real_path)
+        real_path = os.path.join(_area_path, paths.name + ".npy")
+        heatmaps = np.load(real_path)
 
-        fname_hm = os.path.join(paths.output, _area + "_median_heatmap.png")
+        fname_hm = os.path.join(paths.output, _area + f"{paths.name}" + ".png")
         logger.info("OUTPUT: %s", fname_hm)
-        get_plot(real_heatmap, fname_hm, _area, paths.do_svg)
+        get_plot(heatmaps, fname_hm, _area, paths.do_svg)
 
 
 def parse_args():
@@ -290,11 +288,12 @@ def parse_args():
         help="Path to output csv file with",
     )
 
+
     parser.add_argument(
-        "-i",
-        "--heatmaps",
+        "-n",
+        "--name",
         required=True,
-        dest="heatmaps",
+        dest="name",
         type=str,
         metavar="FILENAME",
         help="Path to ",
