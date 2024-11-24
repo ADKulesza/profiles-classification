@@ -53,13 +53,8 @@ def process(config, paths):
     logger.info("DataFrame: %s", paths.output_df)
     profiles_df.to_csv(paths.output_df)
 
-    # y
-    # true_y = profiles_df.idx_in_model.array
-    #
-    # logger.info("true_y: %s", paths.output_y)
-    # np.save(paths.output_y, true_y)
-
     # norm profiles
+    profiles = profiles[profiles_df.index_in_npy_array]
     norm_prof = NormProfiles(config, profiles)
     norm_x = norm_prof.norm_profiles
 

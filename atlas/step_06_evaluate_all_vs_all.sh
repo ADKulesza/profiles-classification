@@ -125,16 +125,16 @@ if [ ${DO_SECTION_EVALUATION} = true ]; then
 
   sections_dir=${STEP_06_EVALUATION_ALL_VS_ALL}/${STEP_06_SECTION_EVALUATION}
 
-#  mkdir -p "${sections_dir}"
-#
-#  python ${CODEBASE_DIR}/step_06_07_get_holdout_sections_evaluation_sets.py \
-#            --config-fname "${CONFIG_FNAME}" \
-#            --areas-def "${LABEL_NAMES}" \
-#            --profiles "${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES}" \
-#            --profiles-csv "${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES_CSV}" \
-#            --output-profiles "${sections_dir}/${STEP_06_NORM_PROFILES}" \
-#            --output-y "${sections_dir}/y_true.npy" \
-#            --output-df "${sections_dir}/${STEP_06_SECTION_CSV}"
+  mkdir -p "${sections_dir}"
+
+  python ${CODEBASE_DIR}/step_06_07_get_holdout_sections_evaluation_sets.py \
+            --config-fname "${CONFIG_FNAME}" \
+            --areas-def "${LABEL_NAMES}" \
+            --profiles "${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES}" \
+            --profiles-csv "${STEP_03_HOLDOUT_DIR}/${STEP_03_SECTIONS_HO_PROFILES_CSV}" \
+            --output-profiles "${sections_dir}/${STEP_06_NORM_PROFILES}" \
+            --output-y "${sections_dir}/y_true.npy" \
+            --output-df "${sections_dir}/${STEP_06_SECTION_CSV}"
   for model_path in ${STEP_05_MODELS}/*/
     do
 
