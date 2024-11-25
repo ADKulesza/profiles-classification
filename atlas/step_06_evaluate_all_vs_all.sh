@@ -4,9 +4,12 @@ DO_HOLDOUT_PREDICT='false'
 DO_HOLDOUT_CONFMAT='false'
 DO_HOLDOUT_TYPES_CONFMAT='false'
 DO_METRICS='false'
+
 DO_ERRORS_ACROSS_TYPES='false'
 
-DO_SECTION_EVALUATION='true'
+DO_SECTION_EVALUATION='false'
+GET_VTK_SECTIONS='true'
+
 
 export ROCM_PATH=/opt/rocm
 
@@ -154,17 +157,32 @@ if [ ${DO_SECTION_EVALUATION} = true ]; then
 
 
     done
+fi
 
 
-#  for model_set_dir in ${STEP_05_MODELS}/*/
-#    do
-#
-#      _set_dir=${model_set_dir%*/}
-#      _set_dir=${_set_dir##*/}
-#
-#      section_model_dir=${sections_dir}/${_set_dir}
-#    done
 
+
+if [ ${GET_VTK_SECTIONS} = true ]; then
+
+  sections_dir=${STEP_06_EVALUATION_ALL_VS_ALL}/${STEP_06_SECTION_EVALUATION}
+
+
+  for output_dir in ${sections_dir}/*/
+    do
+
+      model_dir=${output_dir#*/}
+      model_dir="${model_dir%%/}"
+
+
+      python ${CODEBASE_DIR}/step_06_09_get_predicted_vtk_sections.py \
+        --config-fname "${CONFIG_FNAME}" \
+        --profiles-csv "${output_dir}/results.csv" \
+        --streamlines-dir "${STEP_01_STREAMLINES}" \
+        --output-dir "${output_dir}"
+
+
+
+    done
 fi
 
 
