@@ -69,8 +69,6 @@ def process(paths, config):
 
         for i_sec in sections:
             _df = case_df[case_df.section == i_sec]
-            # pred_area_id = _df.pred_area_id.values
-            # pred_conf_arr = _df.pred_confidence.values
 
             _input_path = os.path.join(paths.streamlines_dir, case)
             fn_input = glob.glob(
@@ -131,7 +129,6 @@ def process(paths, config):
                                                    true_area_color,
                                                    pred_area_color)
 
-            # "{:.1f}".format(x)
             fn_output = os.path.join(paths.output, "{:03d}_streamlines_confidence_pred.vtk".format(i_sec))
             vtk_core.save_vtk_polydata(fn_output,
                                        streamlines)
