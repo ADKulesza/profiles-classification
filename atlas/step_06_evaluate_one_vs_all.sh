@@ -1,11 +1,11 @@
 #!/bin/bash -xe
 
-ONE_VS_ALL_HOLDOUT='false'
+ONE_VS_ALL_HOLDOUT='true'
 
 DO_HOLDOUT_CONFMAT='false'
 DO_METRICS='false'
 
-DO_GLOBAL_HOLDOUT='true'
+DO_GLOBAL_HOLDOUT='false'
 
 #MODEL_NAME='flatten_conv_model'
 
@@ -23,49 +23,40 @@ if [ ${ONE_VS_ALL_HOLDOUT} = true ]; then
   mkdir -p ${STEP_06_EVALUATION_ONE_VS_ALL}
 
   for label_dir in ${STEP_04_ONE_VS_ALL}/*/; do
-    # ---
-    #    reformat_labels_dir=${label_dir}${STEP_04_REFORMAT_LABELS_DIR}
-    output_norm_dir=${label_dir}${STEP_04_NORM_DIR}
-    output_split_dir=${label_dir}/${STEP_04_SPLIT_DATASETS_DIR}
 
     label_id=${label_dir#*/}
     label_id=${label_id%%/}
 
-    label_id="${label_id}/"
+#    label_id="${label_id}/"
 
 
-    output_dir=${STEP_06_EVALUATION_ONE_VS_ALL}/${label_id}
+    output_dir="${STEP_06_EVALUATION_ONE_VS_ALL}/${label_id}"
+    mkdir -p "${output_dir}"
+
+    python "${CODEBASE_DIR}"/step_06_01_get_holdout_datasets.py \
+    --profiles "${STEP_04_ONE_VS_ALL}/${STEP_04_NORM_PROFILES}" \
+    --split-profiles-csv "${label_dir}/${STEP_04_SPLIT_DATASET}" \
+    --output-dir "${output_dir}"\
+    --output-models-order "${output_dir}/${STEP_06_MODELS_ORDER}"
 
 
-    mkdir -p ${output_dir}
-
-    python ${CODEBASE_DIR}/step_06_01_get_holdout_datasets.py \
-      --profiles ${output_norm_dir}/${STEP_04_NORM_PROFILES} \
-      --split-profiles-csv ${output_split_dir}/${STEP_04_SPLIT_DATASET} \
-      --label-names ${LABEL_NAMES} \
-      --area-order "areas_order.json"\
-      --output-dir ${output_dir} \
-      --output-models-order ${output_dir}/${STEP_06_MODELS_ORDER}
-
-
-
-    for holdout_dir in ${output_dir}/*/
-    do
-      holdout_id=${holdout_dir#*/}
-      holdout_id=${holdout_id#*/}
-      holdout_id=${holdout_id#*/}
-      holdout_id="${holdout_id%%/}"
-
-      python ${CODEBASE_DIR}/step_06_02_predict.py \
-        --profiles ${holdout_dir}"x_norm.npy" \
-        --holdout-id ${holdout_id} \
-        --profiles-csv ${holdout_dir}/"holdout_info.csv" \
-        --models-info ${STEP_05_MODELS_ONE_VS_ALL}/${label_id}${STEP_05_MODEL_INFO_CSV} \
-        --models-order ${output_dir}/${STEP_06_MODELS_ORDER} \
-        --output-dir ${output_dir}
-      sleep 3;
-    done
-
+#    for holdout_dir in ${output_dir}/*/
+#    do
+#      holdout_id=${holdout_dir#*/}
+#      holdout_id=${holdout_id#*/}
+#      holdout_id=${holdout_id#*/}
+#      holdout_id="${holdout_id%%/}"
+#
+#      python ${CODEBASE_DIR}/step_06_02_predict.py \
+#        --profiles ${holdout_dir}"x_norm.npy" \
+#        --holdout-id ${holdout_id} \
+#        --profiles-csv ${holdout_dir}/"holdout_info.csv" \
+#        --models-info ${STEP_05_MODELS_ONE_VS_ALL}/${label_id}${STEP_05_MODEL_INFO_CSV} \
+#        --models-order ${output_dir}/${STEP_06_MODELS_ORDER} \
+#        --output-dir ${output_dir}
+#      sleep 3;
+#    done
+#
   done
 
 fi

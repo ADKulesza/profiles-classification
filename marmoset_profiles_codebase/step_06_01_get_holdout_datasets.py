@@ -6,8 +6,6 @@ import os
 import numpy as np
 import pandas as pd
 
-from read_json import read_json
-from sort_map import get_sort_map
 
 C_LOGGER_NAME = "get_holdout"
 logging.basicConfig(
@@ -84,7 +82,7 @@ class CreateHoldoutSets:
             holdout_x = self._profiles[_ho_df.index_in_npy_array]
             holdout_y = self._labels[_ho_df.index_in_npy_array]
 
-            dataset_path = os.path.join(self._paths.output, f"{holdout_name}")
+            dataset_path = os.path.join(self._paths.output, holdout_name)
             x_path = os.path.join(dataset_path, "x_norm.npy")
             y_path = os.path.join(dataset_path, "y_true.npy")
 
