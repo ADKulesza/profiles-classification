@@ -34,29 +34,31 @@ if [ ${ONE_VS_ALL_HOLDOUT} = true ]; then
     mkdir -p "${output_dir}"
 
     python "${CODEBASE_DIR}"/step_06_01_get_holdout_datasets.py \
-    --profiles "${STEP_04_ONE_VS_ALL}/${STEP_04_NORM_PROFILES}" \
-    --split-profiles-csv "${label_dir}/${STEP_04_SPLIT_DATASET}" \
-    --output-dir "${output_dir}"\
-    --output-models-order "${output_dir}/${STEP_06_MODELS_ORDER}"
+      --profiles "${STEP_04_ONE_VS_ALL}/${STEP_04_NORM_PROFILES}" \
+      --split-profiles-csv "${label_dir}/${STEP_04_SPLIT_DATASET}" \
+      --output-dir "${output_dir}"\
+      --output-models-order "${output_dir}/${STEP_06_MODELS_ORDER}"
 
+    for holdout_dir in ${output_dir}/*/
+      do
+#        holdout_id=${holdout_dir#*/}
+#        holdout_id="${holdout_id%%/}"
 
-#    for holdout_dir in ${output_dir}/*/
-#    do
-#      holdout_id=${holdout_dir#*/}
-#      holdout_id=${holdout_id#*/}
-#      holdout_id=${holdout_id#*/}
-#      holdout_id="${holdout_id%%/}"
-#
-#      python ${CODEBASE_DIR}/step_06_02_predict.py \
-#        --profiles ${holdout_dir}"x_norm.npy" \
-#        --holdout-id ${holdout_id} \
-#        --profiles-csv ${holdout_dir}/"holdout_info.csv" \
-#        --models-info ${STEP_05_MODELS_ONE_VS_ALL}/${label_id}${STEP_05_MODEL_INFO_CSV} \
-#        --models-order ${output_dir}/${STEP_06_MODELS_ORDER} \
-#        --output-dir ${output_dir}
-#      sleep 3;
-#    done
-#
+        holdout_id=${holdout_dir#*/}
+        holdout_id=${holdout_id#*/}
+        holdout_id=${holdout_id#*/}
+        holdout_id="${holdout_id%%/}"
+
+        python "${CODEBASE_DIR}/step_06_02_predict.py" \
+          --profiles "${holdout_dir}x_norm.npy" \
+          --holdout-id "${holdout_id}" \
+          --profiles-csv "${holdout_dir}/holdout_info.csv" \
+          --models-info "${STEP_05_MODELS}/${STEP_05_MODEL_INFO_CSV}" \
+          --models-order ${STEP_05_MODELS_ONE_VS_ALL}/${label_id}${STEP_05_MODEL_INFO_CSV} \
+          --output-dir "${output_dir}"
+
+        sleep 10;
+      done
   done
 
 fi

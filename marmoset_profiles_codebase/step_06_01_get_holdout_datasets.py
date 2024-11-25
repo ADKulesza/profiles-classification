@@ -47,9 +47,11 @@ class CreateHoldoutSets:
 
     def run(self):
 
-        holdout_list = [
-            col for col in self._profiles_df.columns if col.startswith("holdout_")
-        ]
+        # holdout_list = [
+        #     col for col in self._profiles_df.columns if col.startswith("holdout_")
+        # ]
+
+        holdout_list = ["holdout_0"]
         set_col_list = [
             col for col in self._profiles_df.columns if col.startswith("set_")
         ]
