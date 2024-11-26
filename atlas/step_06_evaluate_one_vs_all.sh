@@ -41,11 +41,7 @@ if [ ${ONE_VS_ALL_HOLDOUT} = true ]; then
 
     for holdout_dir in ${output_dir}/*/
       do
-#        holdout_id=${holdout_dir#*/}
-#        holdout_id="${holdout_id%%/}"
-
         holdout_id=${holdout_dir#*/}
-        holdout_id=${holdout_id#*/}
         holdout_id=${holdout_id#*/}
         holdout_id="${holdout_id%%/}"
 
@@ -54,7 +50,7 @@ if [ ${ONE_VS_ALL_HOLDOUT} = true ]; then
           --holdout-id "${holdout_id}" \
           --profiles-csv "${holdout_dir}/holdout_info.csv" \
           --models-info "${STEP_05_MODELS}/${STEP_05_MODEL_INFO_CSV}" \
-          --models-order ${STEP_05_MODELS_ONE_VS_ALL}/${label_id}${STEP_05_MODEL_INFO_CSV} \
+          --models-order "${STEP_05_MODELS_ONE_VS_ALL}/${label_id}/${STEP_05_MODEL_INFO_CSV}" \
           --output-dir "${output_dir}"
 
         sleep 10;
