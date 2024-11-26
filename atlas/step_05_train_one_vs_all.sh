@@ -15,10 +15,15 @@ if [ ${DO_TRAIN} = true ]; then
   for label_dir in ${STEP_04_ONE_VS_ALL}/*/
   do
     label_id=${label_dir#*/}
+    label_id=${label_id%%/}
 
-#    if [[ $label_id = 1* ]]; then
-#      continue
-#    fi
+    if [[ $label_id -ge 10 ]]; then
+      continue
+    fi
+
+    if [[ $label_id -le 4 ]]; then
+      continue
+    fi
 
     mkdir -p ${STEP_05_MODELS_ONE_VS_ALL}
     models_dir=${STEP_05_MODELS_ONE_VS_ALL}/${label_id}
@@ -33,6 +38,6 @@ if [ ${DO_TRAIN} = true ]; then
             --model-info ${STEP_05_MODEL_INFO_CSV} \
             --output-dir ${models_dir} \
             --one-vs-all
-  sleep 3;
+  sleep 10;
   done
 fi

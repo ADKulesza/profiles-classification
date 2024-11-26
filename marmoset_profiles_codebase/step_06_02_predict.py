@@ -8,7 +8,6 @@ from tensorflow import compat
 from tensorflow.keras.models import load_model
 
 from cnn_models.simple_model import simple_model
-from cnn_models.multi_branch_binary_model import multi_branch_binary_model
 from read_json import read_json
 
 C_LOGGER_NAME = "get_holdout"

@@ -7,7 +7,7 @@ DO_METRICS='false'
 
 DO_GLOBAL_HOLDOUT='false'
 
-#MODEL_NAME='flatten_conv_model'
+export ROCM_PATH=/opt/rocm
 
 source header.sh
 
@@ -50,10 +50,10 @@ if [ ${ONE_VS_ALL_HOLDOUT} = true ]; then
           --holdout-id "${holdout_id}" \
           --profiles-csv "${holdout_dir}/holdout_info.csv" \
           --models-info "${STEP_05_MODELS}/${STEP_05_MODEL_INFO_CSV}" \
-          --models-order "${STEP_05_MODELS_ONE_VS_ALL}/${label_id}/${STEP_05_MODEL_INFO_CSV}" \
+          --models-order "${output_dir}/${STEP_06_MODELS_ORDER}" \
           --output-dir "${output_dir}"
 
-        sleep 10;
+        sleep 3;
       done
   done
 
