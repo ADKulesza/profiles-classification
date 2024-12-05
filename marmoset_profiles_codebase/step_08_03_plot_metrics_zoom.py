@@ -29,7 +29,7 @@ def cm2inch(x):
     return x * 0.39
 
 
-C_FIGSIZE = (cm2inch(9), cm2inch(15))
+C_FIGSIZE = (cm2inch(9), cm2inch(17))
 
 C_LOGGER_NAME = "metrics"
 
@@ -203,6 +203,7 @@ def read_data(paths):
 
 def process(paths, order, grid=False):
     metrics_df = read_data(paths)
+    metrics_df = metrics_df.sort_values(by="label")
 
     labels_y = metrics_df.area.array
     labels_y = np.flip(labels_y)

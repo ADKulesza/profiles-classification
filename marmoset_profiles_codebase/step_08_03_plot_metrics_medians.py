@@ -14,7 +14,7 @@ C_DPI = 300
 
 BARWIDTH = 0.6
 
-TRICK_X_AXIS = {"min": 0, "max": 1, "step": 0.2}
+TRICK_X_AXIS = {"min": 0.6, "max": 1, "step": 0.2}
 STEP_NUM = (TRICK_X_AXIS["max"] - TRICK_X_AXIS["min"]) / TRICK_X_AXIS["step"]
 
 REL_X_AXIS = {"min": 0.0, "max": 1}  # values for ticks
@@ -38,26 +38,8 @@ C_FIGSIZE = (cm2inch(9), cm2inch(15))
 C_LOGGER_NAME = "metrics"
 
 
-def set_grid(ax, left_y_range, up_right_y_range, plt_prop):
-    for x in range(25, 125, 25):
-        ax["left"].plot(
-            [x / 100, x / 100],
-            [0.5, left_y_range[-1] + 0.3],
-            color="gray",
-            linewidth=0.25 * plt_prop.line_width,
-            ls="--",
-        )
-        ax["right"].plot(
-            [x / 100, x / 100],
-            [0.5, up_right_y_range[-1] + 0.3],
-            color="gray",
-            linewidth=0.25 * plt_prop.line_width,
-            ls="--",
-        )
-
-
-def barh_plot(density_list, colors, order, metric,
-              labels_y, grid, plt_prop, output_dir, do_svg=False):
+def barh_plot(metric_list, colors, order, metric,
+              labels_y, plt_prop, output_dir, do_svg=False):
     gs_kw = dict(width_ratios=[1, 1])
     fig, ax = plt.subplot_mosaic(
         [["left", "right"]],
@@ -66,23 +48,57 @@ def barh_plot(density_list, colors, order, metric,
         constrained_layout=False,
     )
 
+    metric_medians = metric_list[0]
+    metric_q1 = metric_list[1]
+    metric_q3 = metric_list[2]
     y_range = np.arange(1, LEFT_PLOT_IDX + 1)
+
+    logger.info("SMALLEST Y: %s", min(metric_q1))
+
     ax["left"].barh(
         y_range,
-        np.array(density_list[AREA_N - LEFT_PLOT_IDX:]) - REL_X_AXIS["min"],
+        np.array(metric_medians[AREA_N - LEFT_PLOT_IDX:]) - REL_X_AXIS["min"],
         color=colors[AREA_N - LEFT_PLOT_IDX:],
         linewidth=plt_prop.line_width,
         height=BARWIDTH,
     )
+
+    ax["left"].barh(
+        y_range,
+        np.array([TRICK_X_AXIS["min"]] * len(y_range)),
+        color=[[1, 1, 1]] * len(y_range),
+        linewidth=plt_prop.line_width,
+        height=BARWIDTH,
+    )
+
+    # ax["left"].errorbar(
+    #     x=np.array(metric_medians[AREA_N - LEFT_PLOT_IDX:]) - REL_X_AXIS["min"],
+    #     y=y_range,
+    #     xerr=[
+    #         np.array(metric_medians[AREA_N - LEFT_PLOT_IDX:]) - np.array(metric_q1[AREA_N - LEFT_PLOT_IDX:]),
+    #         np.array(metric_q3[AREA_N - LEFT_PLOT_IDX:]) - np.array(metric_medians[AREA_N - LEFT_PLOT_IDX:])
+    #     ],
+    #     fmt='none',
+    #     ecolor='black',
+    #     elinewidth=0.6,
+    #     capsize=3
+    # )
+
     ax["left"].set_zorder(100)
     ax["left"].set_facecolor("none")
 
     ax["right"].set_facecolor("none")
 
-    barh_values = np.array(density_list[:RIGHT_PLOT_IDX])
+    barh_values = np.array(metric_medians[:RIGHT_PLOT_IDX])
 
-    barh_values = np.concatenate((np.zeros(LEFT_PLOT_IDX - RIGHT_PLOT_IDX), barh_values))
+    barh_values = np.concatenate((-np.ones(LEFT_PLOT_IDX - RIGHT_PLOT_IDX), barh_values))
     barh_colors = colors[-AREA_N:-LEFT_PLOT_IDX]
+
+    q1_values = np.array(metric_q1[:RIGHT_PLOT_IDX])
+    q1_values = np.concatenate((-np.ones(LEFT_PLOT_IDX - RIGHT_PLOT_IDX), q1_values))
+
+    q3_values = np.array(metric_q3[:RIGHT_PLOT_IDX])
+    q3_values = np.concatenate((-np.ones(LEFT_PLOT_IDX - RIGHT_PLOT_IDX), q3_values))
 
     for _ in range(LEFT_PLOT_IDX - RIGHT_PLOT_IDX):
         barh_colors.insert(0, [1, 1, 1])
@@ -95,8 +111,26 @@ def barh_plot(density_list, colors, order, metric,
         height=BARWIDTH,
     )
 
-    if grid is True:
-        set_grid(ax, y_range, y_range, plt_prop)
+    ax["right"].barh(
+        y_range,
+        np.array([TRICK_X_AXIS["min"]] * len(y_range)),
+        color=[[1, 1, 1]] * len(y_range),
+        linewidth=plt_prop.line_width,
+        height=BARWIDTH,
+    )
+
+    # ax["right"].errorbar(
+    #     x=barh_values,
+    #     y=y_range,
+    #     xerr=[
+    #         barh_values - q1_values,
+    #         q3_values - barh_values
+    #     ],
+    #     fmt='none',
+    #     ecolor='black',
+    #     elinewidth=0.6,
+    #     capsize=3
+    # )
 
     text_posy = LEFT_PLOT_IDX + 1
     text_posy_1 = AREA_N - RIGHT_PLOT_IDX + 1
@@ -121,9 +155,9 @@ def barh_plot(density_list, colors, order, metric,
         ax[ax_name].annotate(
             f"{key[:2]}",
             fontproperties=plt_prop.font,
-            xy=(-0.5, posx),
+            xy=(TRICK_X_AXIS["min"] - 0.2, posx),
             xycoords="data",
-            xytext=(-0.55, posx),
+            xytext=(TRICK_X_AXIS["min"] - 0.25, posx),
             textcoords="data",
             verticalalignment="center",
             horizontalalignment="right",
@@ -167,13 +201,13 @@ def barh_plot(density_list, colors, order, metric,
 
     axes_formatter_right = AxesFormattingVerticalBarhPlot(ax["right"])
     axes_formatter_right.format_axes(
-        REL_X_AXIS, y_right, labels_x, right_y_labels,
+        TRICK_X_AXIS, y_right, labels_x, right_y_labels,
         span_limits
     )
 
     ax["right"].set_xlabel(f"{metric} score", fontproperties=plt_prop.font, labelpad=15, x=0.6)
 
-    prop = dict(left=0.04, right=0.97, top=0.97, bottom=0.05, wspace=0.15)
+    prop = dict(left=-TRICK_X_AXIS["min"]+0.1, right=0.97, top=0.97, bottom=0.05, wspace=-TRICK_X_AXIS["min"] + 0.1)
     plt.subplots_adjust(**prop)
 
     plt.savefig(os.path.join(output_dir, f"{metric}.png"), dpi=C_DPI)
@@ -192,7 +226,7 @@ def read_data(paths):
     return metrics_df
 
 
-def process(paths, order, grid=False):
+def process(paths, order):
     metrics_df = read_data(paths)
     metrics_df = metrics_df.sort_values(by="label")
 
@@ -205,22 +239,26 @@ def process(paths, order, grid=False):
 
     plt_prop = PlotProperties()
     for metric in metrics_list:
-        m_values = []
+        m_values = [[], [], []]
         colors = []
         for k, gp in gb:
 
-            for den, r, g, b in zip(
-                    list(gp[metric]),
+            for met, _q1, _q3, r, g, b in zip(
+                    list(gp[f"{metric}_median"]),
+                    list(gp[f"{metric}_q1"]),
+                    list(gp[f"{metric}_q3"]),
                     list(gp["color_r"]),
                     list(gp["color_g"]),
                     list(gp["color_b"]),
             ):
-                m_values.append(den)
+                m_values[0].append(met)
+                m_values[1].append(_q1)
+                m_values[2].append(_q3)
                 colors.append([r / 255, g / 255, b / 255])
 
         barh_plot(m_values, colors,
                   order, metric, labels_y,
-                  grid, plt_prop,
+                  plt_prop,
                   paths.output_dir, paths.do_svg)
 
 

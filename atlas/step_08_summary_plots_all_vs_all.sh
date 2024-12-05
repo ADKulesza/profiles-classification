@@ -13,7 +13,7 @@ CAM_VISUALIZATION='false'
 CAM_VISUALIZATION_PROFILE='false'
 CAM_VISUALIZATION_SIG='false'
 
-SALIENCY_VISUALIZATION='true'
+SALIENCY_VISUALIZATION='false'
 
 
 reformat_labels_dir=${STEP_04_OUTPUT_DIR}/${STEP_04_REFORMAT_LABELS_DIR}
@@ -106,12 +106,18 @@ if [ ${METRICS} = 'true' ]; then
       --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
       --output-dir ${model_set_dir}/${STEP_06_METRICS_DIR}
 
-#      python ${CODEBASE_DIR}/step_08_03_plot_metrics_zoom.py \
-#      --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
-#      --output-dir ${model_set_dir}/${STEP_06_METRICS_DIR}
+      python ${CODEBASE_DIR}/step_08_03_plot_metrics_zoom.py \
+      --area-metrics-csv ${model_set_dir}/${STEP_06_METRICS_DIR}/"area_metrics.csv" \
+      --output-dir ${model_set_dir}/${STEP_06_METRICS_DIR}
 
     done
   done
+
+    mkdir -p ${STEP_06_EVALUATION_ALL_VS_ALL}/${STEP_06_METRICS_DIR}
+
+    python ${CODEBASE_DIR}/step_08_03_plot_metrics_medians.py \
+    --area-metrics-csv ${STEP_06_EVALUATION_ALL_VS_ALL}/"all_area_metrics.csv" \
+    --output-dir ${STEP_06_EVALUATION_ALL_VS_ALL}/${STEP_06_METRICS_DIR}
 
 fi
 
