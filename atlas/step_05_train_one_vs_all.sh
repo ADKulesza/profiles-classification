@@ -17,13 +17,13 @@ if [ ${DO_TRAIN} = true ]; then
     label_id=${label_dir#*/}
     label_id=${label_id%%/}
 
-    if [[ $label_id -ge 10 ]]; then
-      continue
-    fi
-
-    if [[ $label_id -le 4 ]]; then
-      continue
-    fi
+#    if [[ $label_id -ge 10 ]]; then
+#      continue
+#    fi
+#
+#    if [[ $label_id -le 4 ]]; then
+#      continue
+#    fi
 
     mkdir -p ${STEP_05_MODELS_ONE_VS_ALL}
     models_dir=${STEP_05_MODELS_ONE_VS_ALL}/${label_id}

@@ -1,11 +1,10 @@
 #!/bin/bash -xe
 
-ONE_VS_ALL_HOLDOUT='true'
+ONE_VS_ALL_HOLDOUT='false'
+DO_GLOBAL_HOLDOUT='true'
 
 DO_HOLDOUT_CONFMAT='false'
 DO_METRICS='false'
-
-DO_GLOBAL_HOLDOUT='false'
 
 export ROCM_PATH=/opt/rocm
 
@@ -27,9 +26,6 @@ if [ ${ONE_VS_ALL_HOLDOUT} = true ]; then
     label_id=${label_dir#*/}
     label_id=${label_id%%/}
 
-#    label_id="${label_id}/"
-
-
     output_dir="${STEP_06_EVALUATION_ONE_VS_ALL}/${label_id}"
     mkdir -p "${output_dir}"
 
@@ -49,12 +45,37 @@ if [ ${ONE_VS_ALL_HOLDOUT} = true ]; then
           --profiles "${holdout_dir}x_norm.npy" \
           --holdout-id "${holdout_id}" \
           --profiles-csv "${holdout_dir}/holdout_info.csv" \
-          --models-info "${STEP_05_MODELS}/${STEP_05_MODEL_INFO_CSV}" \
+          --models-info "${label_dir}/${STEP_05_MODEL_INFO_CSV}" \
           --models-order "${output_dir}/${STEP_06_MODELS_ORDER}" \
           --output-dir "${output_dir}"
 
         sleep 3;
       done
+  done
+
+fi
+
+
+if [ ${DO_GLOBAL_HOLDOUT} = true ]; then
+
+  HOLDOUT_LIST=(
+    "holdout_0"
+)
+
+  summ_output=${STEP_06_EVALUATION_ONE_VS_ALL}/${STEP_06_SUMMARY_ONE_VS_ALL}
+  mkdir -p ${summ_output}
+
+  for holdout_id in "${HOLDOUT_LIST[@]}"; do
+    summ_holdout_dir=${summ_output}/${holdout_id}
+    mkdir -p ${summ_holdout_dir}
+    echo $summ_holdout_dir
+    python ${CODEBASE_DIR}/step_06_one_vs_all_winner_takes_all.py \
+      --evaluation-dir ${STEP_06_EVALUATION_ONE_VS_ALL} \
+      --profiles-csv "${STEP_03_HOLDOUT_DIR}/${STEP_03_TO_TRAIN_CSV}" \
+      --holdout-id ${holdout_id} \
+      --models-order ${STEP_06_EVALUATION_ONE_VS_ALL}/"model_order.json"\
+      --output ${summ_holdout_dir}
+
   done
 
 fi
@@ -118,30 +139,5 @@ if [ ${DO_METRICS} = true ]; then
     --area-output ${label_dir}/"all_area_metrics.csv" \
     --one-vs-all
   done
-fi
-
-
-if [ ${DO_GLOBAL_HOLDOUT} = true ]; then
-
-  summ_output=${STEP_06_EVALUATION_ONE_VS_ALL}/${STEP_06_SUMMARY_ONE_VS_ALL}
-  mkdir -p ${summ_output}
-
-  for holdout_dir in ${STEP_06_EVALUATION_ALL_VS_ALL}/holdout_*/; do
-    holdout_id=${holdout_dir#*/}
-    holdout_id=${holdout_id%%/*}
-
-    summ_holdout_dir=${summ_output}/${holdout_id}
-    mkdir -p ${summ_holdout_dir}
-
-
-        python ${CODEBASE_DIR}/step_06_one_vs_all_winner_takes_all.py \
-          --evaluation-dir ${STEP_06_EVALUATION_ONE_VS_ALL} \
-          --profiles-csv ${holdout_dir}/"holdout_info.csv" \
-          --holdout-id ${holdout_id} \
-          --models-order ${STEP_06_EVALUATION_ONE_VS_ALL}/"model_order.json"\
-          --output ${summ_holdout_dir}
-
-  done
-
 fi
 
