@@ -24,10 +24,22 @@ def read_data(paths):
     set_id = paths.holdout_set[-1]
     eval_paths = glob.glob(paths.evaluation_dir + "/[0-9]*/" + paths.holdout_set + f"/*_set_{set_id}[0-9]" + "/pred_y.npy")
 
+    area_idx_dict = {}
 
+    pred_arr = np.empty(1)
     for _idx, y_pred_path in enumerate(eval_paths):
         _pred = np.load(y_pred_path)
-        logger.info("DUPA %s", _pred[2])
+        _pred = _pred.reshape((1, _pred.shape[0], _pred.shape[1]))
+        if _idx == 0:
+            pred_arr = _pred
+        else:
+            pred_arr = np.concatenate((pred_arr, _pred), axis=0)
+
+        area_id = re.search(r'step_06_evaluation_one_vs_all/(\d+?)/.*', y_pred_path).group(1)
+        area_idx_dict[_idx] = area_id
+
+        logger.info("%s", area_id)
+
 
     # model_order = read_json(paths.models_order)
     # logger.info("%s", paths.models_order)
@@ -62,7 +74,7 @@ def read_data(paths):
     #
     # logger.info("Loading data... Done!")
 
-    return profiles_df
+    return profiles_df, pred_arr, area_idx_dict
 
 
 def clean_df(df):
@@ -87,7 +99,21 @@ def get_mean_of_area_df(area_df):
 
 
 def process(paths):
-    profiles_df = read_data(paths)
+    profiles_df, pred_arr, area_idx_dict = read_data(paths)
+
+    logger.info("pred %s", pred_arr[:,1, :])
+    argmax_y = np.argmax(pred_arr, axis=0)
+    zero_wins_idx = np.where(argmax_y == 0)[0]
+
+    logger.info("ARGmax %s", argmax_y)
+
+    logger.info("ARGmax %s", zero_wins_idx)
+
+    pred_arr[:,zero_wins_idx,0] = -pred_arr[:,zero_wins_idx,0]
+    logger.info("pred %s", pred_arr[:, 1, :])
+
+    argmax_y = np.argmax(pred_arr, axis=0)
+    logger.info("ARGmax %s", argmax_y)
 
     # output_df = clean_df(output_df)
     # output_df.loc["mean"] = output_df.mean()
